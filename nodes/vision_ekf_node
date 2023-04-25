@@ -105,11 +105,9 @@ class EkfNode(Node):
 
     def init_ekf_params(self):
 
-
-
-        param_names_process_noise = self.ekf_params.process_noise.__annotations__.keys(
-        )
-        for name in param_names_process_noise:
+        # param_names_process_noise = self.ekf_params.process_noise.__annotations__.keys(
+        # )
+        for name in self.ekf_params.process_noise.__annotations__.keys():
             full_name = f'process_noise.{name}'
             self.ekf_params.process_noise.__setattr__(
                 name,
