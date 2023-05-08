@@ -6,74 +6,74 @@ from dataclasses import dataclass
 
 @dataclass
 class InitialState:
-    x: float
-    y: float
-    z: float
-    dx: float
-    dy: float
-    dz: float
-    roll: float
-    pitch: float
-    yaw: float
-    droll: float
-    dpitch: float
-    dyaw: float
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    dx: float = 0.0
+    dy: float = 0.0
+    dz: float = 0.0
+    roll: float = 0.0
+    pitch: float = 0.0
+    yaw: float = 0.0
+    droll: float = 0.0
+    dpitch: float = 0.0
+    dyaw: float = 0.0
 
 
 @dataclass
 class InitialStateCovariance:
-    x: float
-    y: float
-    z: float
-    dx: float
-    dy: float
-    dz: float
-    roll: float
-    pitch: float
-    yaw: float
-    droll: float
-    dpitch: float
-    dyaw: float
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    dx: float = 0.0
+    dy: float = 0.0
+    dz: float = 0.0
+    roll: float = 0.0
+    pitch: float = 0.0
+    yaw: float = 0.0
+    droll: float = 0.0
+    dpitch: float = 0.0
+    dyaw: float = 0.0
 
 
 @dataclass
 class ProcessNoise:
-    x: float
-    y: float
-    z: float
-    dx: float
-    dy: float
-    dz: float
-    roll: float
-    pitch: float
-    yaw: float
-    droll: float
-    dpitch: float
-    dyaw: float
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    dx: float = 0.0
+    dy: float = 0.0
+    dz: float = 0.0
+    roll: float = 0.0
+    pitch: float = 0.0
+    yaw: float = 0.0
+    droll: float = 0.0
+    dpitch: float = 0.0
+    dyaw: float = 0.0
 
 
 @dataclass
 class MeasurementNoise:
-    distance: float
-    yaw: float
+    distance: float = 0.0
+    yaw: float = 0.0
 
 
 @dataclass
 class MeasurementNoiseOrientation:
-    roll: float
-    pitch: float
+    roll: float = 0.0
+    pitch: float = 0.0
 
 
 @dataclass
 class EkfParams:
-    dim_meas: int = 2
-    dim_state: int = 13
+    initial_state: InitialState = InitialState()
+    initial_state_covariance: InitialStateCovariance = InitialStateCovariance()
+    process_noise: ProcessNoise = ProcessNoise()
+    measurement_noise: MeasurementNoise = MeasurementNoise()
+    measurement_noise_orientation: MeasurementNoiseOrientation = MeasurementNoiseOrientation()
 
-    initial_state: InitialState
-    initial_state_covariance: InitialStateCovariance
-    process_noise: ProcessNoise
-    measurement_noise: MeasurementNoise
-    measurement_noise_orientation: MeasurementNoiseOrientation
+    dim_meas: int = 0
+    dim_state: int = 0
 
 
 class ExtendedKalmanFilter(object):

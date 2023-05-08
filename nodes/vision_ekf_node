@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-import rcl_interfaces.msg
+from typing import Any
+import dataclasses
 import rclpy
-from rcl_interfaces.msg import (FloatingPointRange, IntegerRange,
-                                ParameterDescriptor, ParameterType)
+from rcl_interfaces.msg import (ParameterDescriptor, ParameterType)
 from rclpy.node import Node
-from rclpy.parameter import Parameter
-
 import tf_transformations
 import tf2_geometry_msgs
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, TwistWithCovarianceStamped
@@ -22,8 +20,8 @@ class EkfNode(Node):
 
     def __init__(self, node_name):
         super().__init__(node_name=node_name)
-        self.ekf_params = EkfParams()
-        self.init_params()
+
+        self.ekf_params = self.init_ekf_params()
 
         self.t_last_prediction = self.get_clock().now()
         self.tags = self.load_tag_poses()
@@ -54,67 +52,28 @@ class EkfNode(Node):
         # self.send_vision_pose_timer = self.create_timer(
         #     timer_period_sec=(1 / 30), callback=self.send_vision_pose)
 
-    def init_params(self):
-        # general parameters
-        self.declare_parameter(namespace='',
-                               parameters=[('vehicle_name'),
-                                           ('camera_name', 'vertical_camera')])
-        # initial state
-        self.declare_parameter(namespace='',
-                               parameters=[('x0.x'), ('x0.y'), ('x0.z'),
-                                           ('x0.roll'), ('x0.pitch'),
-                                           ('x0.yaw'), ('x0.dx'), ('x0.dy'),
-                                           ('x0.dz'), ('x0.droll'),
-                                           ('x0.dpitch'), ('x0.dyaw')])
-        # initial state covariance params
-        self.declare_parameter(namespace='',
-                               parameters=[('P0.x'), ('P0.y'), ('P0.z'),
-                                           ('P0.roll'), ('P0.pitch'),
-                                           ('P0.yaw'), ('P0.dx'), ('P0.dy'),
-                                           ('P0.dz'), ('P0.dpitch'),
-                                           ('P0.droll'), ('P0.dyaw')])
-
-        # process noise
-        self.declare_parameter(namespace='',
-                               parameters=[('process_noise.x'),
-                                           ('process_noise.y'),
-                                           ('process_noise.z'),
-                                           ('process_noise.roll'),
-                                           ('process_noise.pitch'),
-                                           ('process_noise.yaw'),
-                                           ('process_noise.dx'),
-                                           ('process_noise.dy'),
-                                           ('process_noise.dz'),
-                                           ('process_noise.droll'),
-                                           ('process_noise.dpitch'),
-                                           ('process_noise.dyaw')])
-
-        # measurement noise
-        self.declare_parameter(namespace='',
-                               parameters=[('measurement_noise.distance'),
-                                           ('measurement_noise.yaw')])
-
-        self.declare_parameter(namespcae='',
-                               parameters=[
-                                   ('measurement_noise_orientation.roll',
-                                    'measurement_noise_orientation.pitch')
-                               ])
-
-        # measurement noise orientation
-        self.declare_parameter(namespace='', parameters=[()])
-
     def init_ekf_params(self):
 
-        # param_names_process_noise = self.ekf_params.process_noise.__annotations__.keys(
-        # )
-        for name in self.ekf_params.process_noise.__annotations__.keys():
-            full_name = f'process_noise.{name}'
-            self.ekf_params.process_noise.__setattr__(
-                name,
-                self.get_parameter(full_name).value)
+        def recursion(data: Any, name: str):
+            if not dataclasses.is_dataclass(data):
+                descriptor = ParameterDescriptor()
+                if isinstance(data, int):
+                    descriptor.type = ParameterType.PARAMETER_INTEGER
+                elif isinstance(data, float):
+                    descriptor.type = ParameterType.PARAMETER_DOUBLE
+                elif isinstance(data, str):
+                    descriptor.type = ParameterType.PARAMETER_STRING
+                else:
+                    raise TypeError(f'Unsupported type "{type(data)}"')
+                self.declare_parameter(name, descriptor=descriptor)
+                return self.get_parameter(name).value
+            for field_name in data.__annotations__.keys():
+                setattr(data, field_name, recursion(getattr(data, f'{field_name}'), f'{name}.{field_name}'))
+            return data
 
-        # self.ekf_params.process_noise.x = self.get_parameter(
-        #     'process_noise.x').value
+        ekf_params = recursion(EkfParams(), 'ekf_params')
+
+        return ekf_params
 
     def on_tag_detections(self, msg: AprilTagDetectionArray):
         num_detected_tags = len(msg.detections)
@@ -198,9 +157,12 @@ class EkfNode(Node):
         self.vision_pose_pub.publish(msg)
 
     def load_tag_poses(self):
-        self.declare_parameter('tag_poses_file')
-        filepath = self.get_parameter('tag_poses_file').value
-
+        descriptor = ParameterDescriptor(type=ParameterType.PARAMETER_STRING)
+        self.declare_parameter('tag_poses_path', descriptor=descriptor)
+        filepath = self.get_parameter('tag_poses_path').value
+        if not isinstance(filepath, str):
+            print('no value for tag_poses_file param')
+            exit(1)
         with open(filepath, 'r') as f:
             data = yaml.safe_load(f)
             num_tags = len(data['tag_poses'])
