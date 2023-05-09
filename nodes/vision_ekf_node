@@ -35,22 +35,22 @@ class EkfNode(Node):
 
         # publish all ekf states? -> TODO
 
-        # self.tag_detections_sub = self.create_subscription(
-        #     AprilTagDetectionArray,
-        #     'tag_detections',
-        #     self.on_tag_detections,
-        #     qos_profile=1)
+        self.tag_detections_sub = self.create_subscription(
+            AprilTagDetectionArray,
+            'tag_detections',
+            self.on_tag_detections,
+            qos_profile=1)
 
-        # self.orientation_sub = self.create_subscription(
-        #     PoseStamped,
-        #     'mavros/local_position/pose',
-        #     self.on_orientation,
-        #     qos_profile=1)
+        self.orientation_sub = self.create_subscription(
+            PoseStamped,
+            'mavros/local_position/pose',
+            self.on_orientation,
+            qos_profile=1)
 
-        # self.predict_timer = self.create_timer(timer_period_sec=(1 / 30),
-        #                                        callback=self.predict)
-        # self.send_vision_pose_timer = self.create_timer(
-        #     timer_period_sec=(1 / 30), callback=self.send_vision_pose)
+        self.predict_timer = self.create_timer(timer_period_sec=(1 / 30),
+                                               callback=self.predict)
+        self.send_vision_pose_timer = self.create_timer(
+            timer_period_sec=(1 / 30), callback=self.send_vision_pose)
 
     def init_ekf_params(self):
 
@@ -68,61 +68,63 @@ class EkfNode(Node):
                 self.declare_parameter(name, descriptor=descriptor)
                 return self.get_parameter(name).value
             for field_name in data.__annotations__.keys():
-                setattr(data, field_name, recursion(getattr(data, f'{field_name}'), f'{name}.{field_name}'))
+                setattr(
+                    data, field_name,
+                    recursion(getattr(data, f'{field_name}'),
+                              f'{name}.{field_name}'))
             return data
 
         ekf_params = recursion(EkfParams(), 'ekf_params')
-
         return ekf_params
 
     def on_tag_detections(self, msg: AprilTagDetectionArray):
         num_detected_tags = len(msg.detections)
 
-        if num_detected_tags:
-            # measurement for each tag consists of distance and yaw angle
-            # -> dim_meas = 2
-            measurements = np.zeros((num_detected_tags * self.ekf.dim_meas, 1))
-            detected_tags = np.zeros((num_detected_tags, 4))
+        if not num_detected_tags:
+            return  # no tags detected, nothing to update
 
-            for i, tag in enumerate(msg.detections):
-                tag_id = int(tag.id[0])
+        # measurement for each tag consists of distance and yaw angle
+        # -> dim_meas = 2
+        measurements = np.zeros((num_detected_tags * self.ekf.dim_meas, 1))
+        detected_tags = np.zeros((num_detected_tags, 4))
 
-                # add this tag's information to list of detected tags
-                index = np.where(self.tags[:, 0] == tag_id)
-                detected_tags[i, :] = self.tags[index, 0:4]
+        for i, tag in enumerate(msg.detections):
+            tag_id = int(tag.id[0])
 
-                # tranform tag pose
-                transform = self.tf_helper.\
-                    get_camera_frame_to_base_link_tf(self.camera_name)
-                tag_pose_in_base_link = tf2_geometry_msgs.do_transform_pose(
-                    tag.pose.pose, transform)
+            # add this tag's information to list of detected tags
+            index = np.where(self.tags[:, 0] == tag_id)
+            detected_tags[i, :] = self.tags[index, 0:4]
 
-                position_tag_in_base_link = np.array([
-                    tag_pose_in_base_link.pose.position.x,
-                    tag_pose_in_base_link.pose.position.y,
-                    tag_pose_in_base_link.pose.position.z
-                ]).reshape(-1, 1)
-                orientation = [
-                    tag_pose_in_base_link.pose.orientation.x,
-                    tag_pose_in_base_link.pose.orientation.y,
-                    tag_pose_in_base_link.pose.orientation.z,
-                    tag_pose_in_base_link.pose.orientation.w
-                ]
+            # tranform tag pose
+            transform = self.tf_helper.\
+                get_camera_frame_to_base_link_tf(self.camera_name)
+            tag_pose_in_base_link = tf2_geometry_msgs.do_transform_pose(
+                tag.pose.pose, transform)
 
-                # inverse quaternion to get base_link orientation
-                # in tag frame, which has same orientation as map frame
-                orientation = tf_transformations.quaternion_inverse(
-                    orientation)
-                _, _, yaw = tf_transformations.euler_from_quaternion(
-                    orientation)
+            position_tag_in_base_link = np.array([
+                tag_pose_in_base_link.pose.position.x,
+                tag_pose_in_base_link.pose.position.y,
+                tag_pose_in_base_link.pose.position.z
+            ]).reshape(-1, 1)
+            orientation = [
+                tag_pose_in_base_link.pose.orientation.x,
+                tag_pose_in_base_link.pose.orientation.y,
+                tag_pose_in_base_link.pose.orientation.z,
+                tag_pose_in_base_link.pose.orientation.w
+            ]
 
-                # measurement 1: distance tag - base_link
-                measurements[self.ekf.dim_meas * i,
-                             0] = np.linalg.norm(position_tag_in_base_link)
-                # measurement 2: yaw angle in map frame
-                measurements[self.ekf.dim_meas * i + 1, 0] = yaw
+            # inverse quaternion to get base_link orientation
+            # in tag frame, which has same orientation as map frame
+            orientation = tf_transformations.quaternion_inverse(orientation)
+            _, _, yaw = tf_transformations.euler_from_quaternion(orientation)
 
-            self.ekf.updated_vision_data(measurements, detected_tags)
+            # measurement 1: distance tag - base_link
+            measurements[self.ekf.dim_meas * i,
+                         0] = np.linalg.norm(position_tag_in_base_link)
+            # measurement 2: yaw angle in map frame
+            measurements[self.ekf.dim_meas * i + 1, 0] = yaw
+
+        self.ekf.updated_vision_data(measurements, detected_tags)
 
     def on_orientation(self, msg: PoseStamped):
         orientation = [
@@ -166,7 +168,6 @@ class EkfNode(Node):
         with open(filepath, 'r') as f:
             data = yaml.safe_load(f)
             num_tags = len(data['tag_poses'])
-
             # iterate over tags:
             tags = np.zeros((num_tags, 8))
             for tag in data['tag_poses']:

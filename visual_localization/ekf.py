@@ -70,7 +70,8 @@ class EkfParams:
     initial_state_covariance: InitialStateCovariance = InitialStateCovariance()
     process_noise: ProcessNoise = ProcessNoise()
     measurement_noise: MeasurementNoise = MeasurementNoise()
-    measurement_noise_orientation: MeasurementNoiseOrientation = MeasurementNoiseOrientation()
+    measurement_noise_orientation: MeasurementNoiseOrientation = MeasurementNoiseOrientation(
+    )
 
     dim_meas: int = 0
     dim_state: int = 0
@@ -125,10 +126,10 @@ class ExtendedKalmanFilter(object):
                                 a_mat.transpose()) + self.process_model.V
 
         # reset EKF if unrealistic values
-        if self.get_x_est()[0] > 5 or self.get_x_est()[1] > 5:
-            print('Resetting EKF: x or y value outside tank')
+        if np.absolute(self.get_x_est()[0]) > 10 or np.absolute(
+                self.get_x_est()[1] > 10):
+            print('Resetting EKF: x or y value too far outside tank')
             self.reset()
-        # TODO find better values
         elif not np.all(np.isfinite(self.get_x_est())):
             print('Resetting EKF: unrealistically high value')
             print('x: ', self.get_x_est())
@@ -410,7 +411,8 @@ class MeasurementModelDistances(object):
 
     def h_jacobian_vision_data(self, x_est, detected_tags):
         num_tags = detected_tags.shape[0]
-        h_mat = np.zeros((num_tags * self.ekf_params.dim_meas, self.ekf_params.dim_state))
+        h_mat = np.zeros(
+            (num_tags * self.ekf_params.dim_meas, self.ekf_params.dim_state))
 
         for i, tag in enumerate(detected_tags):
             tag_pos = tag[1:4]
@@ -425,7 +427,8 @@ class MeasurementModelDistances(object):
             # dh /dyaw
             h_jac_yaw = 1.0
 
-            h_mat[self.ekf_params.dim_meas * i, 0:3] = [h_jac_x, h_jac_y, h_jac_z]
+            h_mat[self.ekf_params.dim_meas * i,
+                  0:3] = [h_jac_x, h_jac_y, h_jac_z]
             h_mat[self.ekf_params.dim_meas * i + 1, 5] = h_jac_yaw
             # all other derivatives are zero
 
@@ -473,8 +476,8 @@ class MeasurementModelDistances(object):
 
         num_tags = detected_tags.shape[0]
         # initialize dynamic W
-        w_mat_dyn = np.zeros(
-            (num_tags * self.ekf_params.dim_meas, num_tags * self.ekf_params.dim_meas))
+        w_mat_dyn = np.zeros((num_tags * self.ekf_params.dim_meas,
+                              num_tags * self.ekf_params.dim_meas))
 
         for i, tag in enumerate(detected_tags):
             # tag_pos = tag[1:4]
@@ -490,11 +493,12 @@ class MeasurementModelDistances(object):
 
             # debugging: not dynamic
             # noise for distance measurement
-            w_mat_dyn[self.ekf_params.dim_meas * i,
-                      self.ekf_params.dim_meas * i] = self._w_mat_vision_static[0, 0]
+            w_mat_dyn[self.ekf_params.dim_meas * i, self.ekf_params.dim_meas *
+                      i] = self._w_mat_vision_static[0, 0]
             # noise for yaw measurement
             w_mat_dyn[self.ekf_params.dim_meas * i + 1,
-                      self.ekf_params.dim_meas * i + 1] = self._w_mat_vision_static[1, 1]
+                      self.ekf_params.dim_meas * i +
+                      1] = self._w_mat_vision_static[1, 1]
 
         return w_mat_dyn  # dim [num_tags*dim_meas X num_tag*dim_meas]
 
