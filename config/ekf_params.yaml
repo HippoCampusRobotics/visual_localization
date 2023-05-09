@@ -6,8 +6,8 @@
         y: 1.0
         z: 0.0
         roll: 0.0
-        pitch: 0.0
-        yaw: 0.0
+        pitch: 1.0
+        yaw: 2.0
         dx: 0.0
         dy: 0.0
         dz: 0.0
@@ -58,5 +58,5 @@
         pitch: 0.1
 
       dim_meas: 2
-      dim_state: 13
+      dim_state: 12
   

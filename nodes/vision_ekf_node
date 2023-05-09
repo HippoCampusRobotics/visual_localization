@@ -22,11 +22,10 @@ class EkfNode(Node):
         super().__init__(node_name=node_name)
 
         self.ekf_params = self.init_ekf_params()
+        self.ekf = ExtendedKalmanFilter(self.ekf_params)
 
         self.t_last_prediction = self.get_clock().now()
         self.tags = self.load_tag_poses()
-
-        self.ekf = ExtendedKalmanFilter(self.ekf_params)
 
         self.vision_pose_pub = self.create_publisher(
             PoseWithCovarianceStamped,
@@ -143,19 +142,24 @@ class EkfNode(Node):
     def send_vision_pose(self):
         x_est = self.ekf.get_x_est()
         cov_est = self.ekf.get_p_mat()[:6, :6]
-        quat = tf_transformations.quaternion_from_euler(x_est[3:5])
+
+        position = x_est[:3,0]
+        roll = x_est[3]
+        pitch = x_est[4]
+        yaw = x_est[5]
+        quat = tf_transformations.quaternion_from_euler(roll, pitch, yaw)
 
         msg = PoseWithCovarianceStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'map'
-        msg.pose.pose.position.x = x_est[0]
-        msg.pose.pose.position.y = x_est[1]
-        msg.pose.pose.position.z = x_est[2]
+        msg.pose.pose.position.x = position[0]
+        msg.pose.pose.position.y = position[1]
+        msg.pose.pose.position.z = position[2]
         msg.pose.pose.orientation.x = quat[0]
         msg.pose.pose.orientation.y = quat[1]
         msg.pose.pose.orientation.z = quat[2]
         msg.pose.pose.orientation.w = quat[3]
-        msg.pose.covariance = np.array.tolist(np.ndarray.flatten(cov_est))
+        msg.pose.covariance = np.ndarray.tolist(np.ndarray.flatten(cov_est))
         self.vision_pose_pub.publish(msg)
 
     def load_tag_poses(self):

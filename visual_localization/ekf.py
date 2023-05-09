@@ -1,7 +1,7 @@
 from __future__ import print_function
 import numpy as np
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, astuple
 
 
 @dataclass
@@ -9,12 +9,12 @@ class InitialState:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
-    dx: float = 0.0
-    dy: float = 0.0
-    dz: float = 0.0
     roll: float = 0.0
     pitch: float = 0.0
     yaw: float = 0.0
+    dx: float = 0.0
+    dy: float = 0.0
+    dz: float = 0.0
     droll: float = 0.0
     dpitch: float = 0.0
     dyaw: float = 0.0
@@ -25,12 +25,12 @@ class InitialStateCovariance:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
-    dx: float = 0.0
-    dy: float = 0.0
-    dz: float = 0.0
     roll: float = 0.0
     pitch: float = 0.0
     yaw: float = 0.0
+    dx: float = 0.0
+    dy: float = 0.0
+    dz: float = 0.0
     droll: float = 0.0
     dpitch: float = 0.0
     dyaw: float = 0.0
@@ -41,12 +41,12 @@ class ProcessNoise:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
-    dx: float = 0.0
-    dy: float = 0.0
-    dz: float = 0.0
     roll: float = 0.0
     pitch: float = 0.0
     yaw: float = 0.0
+    dx: float = 0.0
+    dy: float = 0.0
+    dz: float = 0.0
     droll: float = 0.0
     dpitch: float = 0.0
     dyaw: float = 0.0
@@ -82,8 +82,24 @@ class ExtendedKalmanFilter(object):
     def __init__(self, ekf_params: EkfParams):
         self.ekf_params = ekf_params
 
-        self._x_est_0 = self.ekf_params.initial_state
+        self._x_est_0 = np.array(astuple(
+            self.ekf_params.initial_state)).reshape((-1, 1))
         self._p0_mat = self.ekf_params.initial_state_covariance
+        self._p0_mat = np.array(
+            np.diag([
+                self.ekf_params.initial_state_covariance.x**2,
+                self.ekf_params.initial_state_covariance.y**2,
+                self.ekf_params.initial_state_covariance.z**2,
+                self.ekf_params.initial_state_covariance.roll**2,
+                self.ekf_params.initial_state_covariance.pitch**2,
+                self.ekf_params.initial_state_covariance.yaw**2,
+                self.ekf_params.initial_state_covariance.dx**2,
+                self.ekf_params.initial_state_covariance.dy**2,
+                self.ekf_params.initial_state_covariance.dz**2,
+                self.ekf_params.initial_state_covariance.droll**2,
+                self.ekf_params.initial_state_covariance.dpitch**2,
+                self.ekf_params.initial_state_covariance.dyaw**2
+            ]))
 
         self._x_est = self._x_est_0
         self._x_est_last = self._x_est

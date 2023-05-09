@@ -32,5 +32,7 @@ def generate_launch_description():
                     launch.substitutions.LaunchConfiguration('tag_poses_path'),
                 },
             ],
-            output='screen'),
+            output='screen',
+            emulate_tty=True,
+        ),
     ])
