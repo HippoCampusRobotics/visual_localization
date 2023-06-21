@@ -10,6 +10,8 @@ def generate_launch_description():
     default_ekf_params_path = package_path / ('config/ekf_params.yaml')
     default_tag_poses_path = package_path / ('config/tag_poses.yaml')
 
+    default_vehicle_name = 'uuv00'
+
     launch_args = [
         launch.actions.DeclareLaunchArgument(
             name='camera_name',
@@ -18,7 +20,7 @@ def generate_launch_description():
         ),
         launch.actions.DeclareLaunchArgument(
             name='vehicle_name',
-            default_value='uuv00',
+            default_value=default_vehicle_name,
             description='Vehicle name used as top level namespace.',
         ),
         launch.actions.DeclareLaunchArgument(
@@ -29,6 +31,10 @@ def generate_launch_description():
             name='tag_poses_path',
             default_value=str(default_tag_poses_path),
             description='Path to the tag poses .yaml file.'),
+        launch.actions.DeclareLaunchArgument(
+            name='use_sim_time',
+            default_value=str(False),
+        ),
     ]
 
     apriltag_settings = os.path.join(get_package_share_path('apriltag_ros'),
@@ -42,27 +48,48 @@ def generate_launch_description():
         package=package_name,
         executable='vision_ekf_node',
         parameters=[
-            launch.substitutions.LaunchConfiguration('ekf_params_path'),
+            launch.substitutions.LaunchConfiguration(
+                'ekf_params_path'),  # load yaml file with ekf parameters
             {
                 'tag_poses_path':
                 launch.substitutions.LaunchConfiguration('tag_poses_path'),
+                'camera_name':
+                launch.substitutions.LaunchConfiguration('camera_name'),
             },
         ],
         output='screen',
         emulate_tty=True,
     )
+
     apriltag_node = launch_ros.actions.Node(
         package='apriltag_ros',
         executable='apriltag_ros_continuous_detector_node',
         name='apriltag_node',
-        remappings=[('~/image_rect', 'vertical_camera'),
-                    ('~/camera_info', 'camera_info'),
+        remappings=[('~/image_rect', 'vertical_camera/image'),
+                    ('~/camera_info', 'vertical_camera/camera_info'),
                     ('~/tag_detections', 'tag_detections')],
         parameters=[
             apriltag_settings,
             tags_standalone_path,
+            {
+                'publish_tag_detections_image': True
+            },
         ],
         output='screen',
+    )
+
+    tf_launch_path = os.path.join(get_package_share_path('hippo_common'),
+                                  'launch', 'tf_publisher_hippo.launch.py')
+
+    tf_publisher = launch.actions.IncludeLaunchDescription(
+        launch.launch_description_sources.PythonLaunchDescriptionSource(
+            tf_launch_path),
+        launch_arguments={
+            'vehicle_name':
+            launch.substitutions.LaunchConfiguration('vehicle_name'),
+            'use_sim_time':
+            launch.substitutions.LaunchConfiguration('use_sim_time'),
+        }.items(),
     )
 
     nodes_group = launch.actions.GroupAction([
@@ -72,4 +99,4 @@ def generate_launch_description():
         ekf_node,
     ])
 
-    return launch.LaunchDescription(launch_args + [nodes_group])
+    return launch.LaunchDescription(launch_args + [nodes_group, tf_publisher])

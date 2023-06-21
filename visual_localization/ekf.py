@@ -228,7 +228,7 @@ class ExtendedKalmanFilter(object):
         x_est = x_est + np.matmul(k_mat, y)
 
         # update covariance
-        p_tmp = np.eye(self.dim_state) - np.matmul(k_mat, h_mat)
+        p_tmp = np.eye(self.ekf_params.dim_state) - np.matmul(k_mat, h_mat)
         p_mat = np.matmul(p_tmp, p_mat)
         # print('P_m diag: ', np.diag(self.get_p_mat()))
         return x_est, p_mat
