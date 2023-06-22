@@ -37,6 +37,8 @@ def generate_launch_description():
         ),
     ]
 
+    use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time')
+
     apriltag_settings = os.path.join(get_package_share_path('apriltag_ros'),
                                      'config', 'settings.param.yaml')
 
@@ -65,31 +67,18 @@ def generate_launch_description():
         package='apriltag_ros',
         executable='apriltag_ros_continuous_detector_node',
         name='apriltag_node',
-        remappings=[('~/image_rect', 'vertical_camera/image'),
+        remappings=[('~/image_rect', 'vertical_camera/image_rect'),
                     ('~/camera_info', 'vertical_camera/camera_info'),
                     ('~/tag_detections', 'tag_detections')],
         parameters=[
             apriltag_settings,
             tags_standalone_path,
             {
-                'publish_tag_detections_image': True
+                'publish_tag_detections_image': True,
+                'use_sim_time': use_sim_time,
             },
         ],
         output='screen',
-    )
-
-    tf_launch_path = os.path.join(get_package_share_path('hippo_common'),
-                                  'launch', 'tf_publisher_hippo.launch.py')
-
-    tf_publisher = launch.actions.IncludeLaunchDescription(
-        launch.launch_description_sources.PythonLaunchDescriptionSource(
-            tf_launch_path),
-        launch_arguments={
-            'vehicle_name':
-            launch.substitutions.LaunchConfiguration('vehicle_name'),
-            'use_sim_time':
-            launch.substitutions.LaunchConfiguration('use_sim_time'),
-        }.items(),
     )
 
     nodes_group = launch.actions.GroupAction([
@@ -99,4 +88,6 @@ def generate_launch_description():
         ekf_node,
     ])
 
-    return launch.LaunchDescription(launch_args + [nodes_group, tf_publisher])
+    return launch.LaunchDescription(launch_args + [
+        nodes_group,
+    ])
