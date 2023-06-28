@@ -102,7 +102,7 @@ class EkfNode(Node):
             return name
 
         prefix = get_prefix(self)
-        camera_link_name = prefix + '/' + self.camera_name + '_link'
+        camera_link_name = prefix + '/' + self.camera_name + '_frame'
         base_link_name = prefix + '/base_link'
         timeout = Duration(seconds=2.0)
         try:
