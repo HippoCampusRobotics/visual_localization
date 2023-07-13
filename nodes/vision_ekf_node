@@ -45,10 +45,9 @@ class EkfNode(Node):
         self.t_last_prediction = self.get_clock().now()
         self.tags = self.load_tag_poses()
 
-        self.vision_pose_pub = self.create_publisher(
-            PoseWithCovarianceStamped,
-            'vision_pose_cov',
-            qos_profile=1)
+        self.vision_pose_pub = self.create_publisher(PoseWithCovarianceStamped,
+                                                     'vision_pose_cov',
+                                                     qos_profile=1)
 
         # publish all ekf states? -> TODO
 
@@ -180,7 +179,12 @@ class EkfNode(Node):
 
     def predict(self):
         now = self.get_clock().now()
-        self.ekf.predict(now - self.t_last_prediction)
+
+        dt = now - self.t_last_prediction
+        dt_seconds = dt.nanoseconds / 1e9
+        self.ekf.predict(dt_seconds)
+
+        self.t_last_prediction = now
 
     def send_vision_pose(self):
         x_est = self.ekf.get_x_est()
@@ -203,8 +207,6 @@ class EkfNode(Node):
         msg.pose.pose.orientation.w = quat[3]
         msg.pose.covariance = np.ndarray.tolist(np.ndarray.flatten(cov_est))
         self.vision_pose_pub.publish(msg)
-
-
 
     def load_tag_poses(self):
         descriptor = ParameterDescriptor(type=ParameterType.PARAMETER_STRING)
