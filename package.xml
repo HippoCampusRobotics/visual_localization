@@ -7,15 +7,9 @@
 
   <maintainer email="nathalie.bauschmann@tuhh.de">Nathalie Bauschmann</maintainer>
 
-
-  <!-- One license tag required, multiple allowed, one license per tag -->
-  <!-- Commonly used license strings: -->
-  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>TODO</license>
 
-
   <url type="website">hippocampusrobotics.github.io/docs</url>
-
 
   <author email="nathalie.bauschmann@tuhh.de">Nathalie Bauschmann</author>
 
@@ -28,8 +22,6 @@
   <depend>hippo_msgs</depend>
   <depend>std_srvs</depend>
   <depend>tf_transformations</depend>
-  <exec_depend>ros2_launch</exec_depend>
-
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
