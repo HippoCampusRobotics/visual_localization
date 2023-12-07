@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-import yaml
+import argparse
 import os
 import sys
-import argparse
 from typing import Tuple
-import tf_transformations
+
 import numpy as np
+import tf_transformations
+import yaml
 
 
 def float_representer(dumper, value):
@@ -48,7 +49,7 @@ def generate_standalone_tags(n_tags: int, size: float):
     for i in range(n_tags):
         tag_name = f'tag_{i}'
         data['standalone_tags']['tag_names'].append(tag_name)
-        data['standalone_tags'][tag_name] = dict(id=i, size=size)
+        data['standalone_tags'][tag_name] = {'id': i, 'size': size}
     return data
 
 
@@ -56,17 +57,17 @@ def generate_tag_bundle(tag_poses, name: str):
     layout = {'ids': []}
     for tag in tag_poses['tag_poses']:
         layout['ids'].append(tag['id'])
-        layout[tag["id"]] = dict(
-            size=tag['size'],
-            x=tag['x'],
-            y=tag['y'],
-            z=tag['z'],
-            qw=1.0,
-            qx=0.0,
-            qy=0.0,
-            qz=0.0,
-        )
-    data = {f'{name}': dict(layout=layout)}
+        layout[tag["id"]] = {
+            'size': tag['size'],
+            'x': tag['x'],
+            'y': tag['y'],
+            'z': tag['z'],
+            'qw': 1.0,
+            'qx': 0.0,
+            'qy': 0.0,
+            'qz': 0.0,
+        }
+    data = {f'{name}': {'layout': layout}}
     return data
 
 
@@ -139,8 +140,8 @@ def main():
             for tag in data['tag_poses']:
                 if tag['frame_id'] == 'map':
                     tags[tag['id'], :] = np.array([
-                        tag['id'], tag['x'], tag['y'], tag['z'], tag['qx'], tag['qy'],
-                        tag['qz'], tag['qw']
+                        tag['id'], tag['x'], tag['y'], tag['z'], tag['qx'],
+                        tag['qy'], tag['qz'], tag['qw']
                     ])
                 else:
                     print('Tag not in map frame! - not implemented yet')

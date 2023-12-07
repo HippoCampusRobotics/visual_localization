@@ -1,7 +1,9 @@
 from __future__ import print_function
-import numpy as np
+
 import threading
-from dataclasses import dataclass, astuple
+from dataclasses import astuple, dataclass
+
+import numpy as np
 
 
 @dataclass
@@ -70,9 +72,8 @@ class EkfParams:
     initial_state_covariance: InitialStateCovariance = InitialStateCovariance()
     process_noise: ProcessNoise = ProcessNoise()
     measurement_noise: MeasurementNoise = MeasurementNoise()
-    measurement_noise_orientation: MeasurementNoiseOrientation = MeasurementNoiseOrientation(
-    )
-
+    measurement_noise_orientation: MeasurementNoiseOrientation = (
+        MeasurementNoiseOrientation())
     dim_meas: int = 0
     dim_state: int = 0
 
@@ -495,18 +496,7 @@ class MeasurementModelDistances(object):
         w_mat_dyn = np.zeros((num_tags * self.ekf_params.dim_meas,
                               num_tags * self.ekf_params.dim_meas))
 
-        for i, tag in enumerate(detected_tags):
-            # tag_pos = tag[1:4]
-            # dist = sqrt((x - x_tag) ^ 2 + (y - y_tag) ^ 2 + (z - z_tag) ^ 2)
-            # dist = self.get_dist(x_est, tag_pos)
-
-            # add dynamic noise to measurement noise for distance measurement
-            # w_mat_dyn[self.ekf_params.dim_meas * i, self.ekf_params.dim_meas * i] = dist / ((x_est[2] - tag_pos[2])
-            #                                                  * self._c_penalty_dist) + self._w_mat_vision_static[0, 0]
-            # add dynamic noise to measurement noise for yaw measurement
-            # w_mat_dyn[self.ekf_params.dim_meas * i + 1, self.ekf_params.dim_meas * i + 1] = dist / ((x_est[2] - tag_pos[2])
-            #                                                   * self._c_penalty_yaw) + self._w_mat_vision_static[1, 1]
-
+        for i, _tag in enumerate(detected_tags):
             # debugging: not dynamic
             # noise for distance measurement
             w_mat_dyn[self.ekf_params.dim_meas * i, self.ekf_params.dim_meas *
@@ -520,6 +510,6 @@ class MeasurementModelDistances(object):
 
     def get_dist(self, x_est, tag_pos):
         # dist = sqrt((x - x_tag) ^ 2 + (y - y_tag) ^ 2 + (z - z_tag) ^ 2)
-        dist = np.sqrt((x_est[0] - tag_pos[0])**2 +
-                       (x_est[1] - tag_pos[1])**2 + (x_est[2] - tag_pos[2])**2)
+        dist = np.sqrt((x_est[0] - tag_pos[0])**2 + (x_est[1] - tag_pos[1])**2 +
+                       (x_est[2] - tag_pos[2])**2)
         return dist

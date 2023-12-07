@@ -13,10 +13,10 @@
         dz: 0.0
         droll: 0.0
         dpitch: 0.0
-        dyaw: 0.0   
+        dyaw: 0.0
 
       initial_state_covariance:
-        # standard deviations 
+        # standard deviations
         x: 0.2
         y: 0.2
         z: 0.2
@@ -50,7 +50,7 @@
         # standard deviations
         distance: 0.1
         yaw: 0.1
-      
+
       # orientation data
       measurement_noise_orientation:
         # standard deviations
@@ -59,4 +59,3 @@
 
       dim_meas: 2
       dim_state: 12
-  

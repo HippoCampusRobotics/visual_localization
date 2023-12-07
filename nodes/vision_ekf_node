@@ -1,26 +1,29 @@
 #!/usr/bin/env python3
-from typing import Any
 import dataclasses
-import rclpy
-from rcl_interfaces.msg import (ParameterDescriptor, ParameterType)
-from rclpy.node import Node
-from rclpy.duration import Duration
-import tf_transformations
-import tf2_geometry_msgs
-from geometry_msgs.msg import TransformStamped
-from tf2_ros import TransformException
-from tf2_ros.buffer import Buffer
-from tf2_ros.transform_listener import TransformListener
-from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
-
-from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, TwistWithCovarianceStamped
-from apriltag_ros.msg import AprilTagDetectionArray
-from sensor_msgs.msg import Imu
-
-from visual_localization.ekf import ExtendedKalmanFilter, MeasurementModelDistances, ProcessModel, EkfParams
+from typing import Any
 
 import numpy as np
+import rclpy
+import tf2_geometry_msgs
+import tf_transformations
 import yaml
+from apriltag_ros.msg import AprilTagDetectionArray
+from geometry_msgs.msg import (
+    PoseStamped,
+    PoseWithCovarianceStamped,
+)
+from rcl_interfaces.msg import ParameterDescriptor, ParameterType
+from rclpy.duration import Duration
+from rclpy.node import Node
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
+from tf2_ros.transform_listener import TransformListener
+
+from visual_localization.ekf import (
+    EkfParams,
+    ExtendedKalmanFilter,
+)
 
 
 class EkfNode(Node):
@@ -105,16 +108,16 @@ class EkfNode(Node):
         base_link_name = prefix + '/base_link'
         timeout = Duration(seconds=2.0)
         try:
-            self.camera_frame_to_base_link_transform = self.tf_buffer.lookup_transform(
-                target_frame=base_link_name,
-                source_frame=camera_link_name,
-                time=self.get_clock().now(),
-                timeout=timeout)
+            self.camera_frame_to_base_link_transform = (
+                self.tf_buffer.lookup_transform(target_frame=base_link_name,
+                                                source_frame=camera_link_name,
+                                                time=self.get_clock().now(),
+                                                timeout=timeout))
             return True
-        except TransformException as ex:
+        except TransformException:
             self.get_logger().warning(
-                f'After waiting {timeout}, could not look up transform from camera frame to base link for vehicle'
-            )
+                f'After waiting {timeout}, could not look up transform from'
+                ' camera frame to base link for vehicle')
             return False
 
     def on_tag_detections(self, msg: AprilTagDetectionArray):
