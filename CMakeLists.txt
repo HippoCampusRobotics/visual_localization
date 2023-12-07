@@ -19,8 +19,8 @@ find_package(rclcpp_components REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(hippo_msgs REQUIRED)
-find_package(image_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
 # find_package(tf_transformations REQUIRED)
 
 # find_package(catkin REQUIRED COMPONENTS
@@ -36,8 +36,8 @@ add_executable(${exec_name}
 ament_target_dependencies(${exec_name}
   rclcpp
   rclcpp_components
-  image_transport
   sensor_msgs
+  cv_bridge
 )
 install(TARGETS ${exec_name}
   DESTINATION lib/${PROJECT_NAME}
