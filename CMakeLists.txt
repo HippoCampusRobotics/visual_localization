@@ -14,38 +14,9 @@ add_compile_options(${CXX_FLAGS})
 ## is used, also find other catkin packages
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(hippo_msgs REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(cv_bridge REQUIRED)
-# find_package(tf_transformations REQUIRED)
-
-# find_package(catkin REQUIRED COMPONENTS
-#   hippocampus_common
-#   hippocampus_msgs
-#   path_planning
-#   dynamic_reconfigure
-# )
-set(exec_name image_decoder)
-add_executable(${exec_name}
-  src/image_decoder.cpp
-)
-ament_target_dependencies(${exec_name}
-  rclcpp
-  rclcpp_components
-  sensor_msgs
-  cv_bridge
-)
-install(TARGETS ${exec_name}
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-include_directories(
-  include
-)
 
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})
@@ -58,10 +29,6 @@ install(PROGRAMS
   nodes/vision_ekf_node
   DESTINATION lib/${PROJECT_NAME}
 )
-
-install (
-  TARGETS
-  DESTINATION lib/${PROJECT_NAME})
 
 install(
   DIRECTORY launch config

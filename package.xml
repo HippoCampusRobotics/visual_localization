@@ -16,14 +16,10 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
-  <depend>rclcpp</depend>
-  <depend>rclcpp_components</depend>
-  <depend>sensor_msgs</depend>
   <depend>rclpy</depend>
   <depend>hippo_msgs</depend>
   <depend>std_srvs</depend>
   <depend>tf_transformations</depend>
-  <depend>cv_bridge</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
