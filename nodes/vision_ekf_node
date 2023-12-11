@@ -197,6 +197,8 @@ class EkfNode(Node):
             # inverse quaternion to get base_link orientation
             # in tag frame, which has same orientation as map frame
             orientation = tf_transformations.quaternion_inverse(orientation)
+            # TODO(lennartalff): THIS IS WRONG! We want the yaw angle relative
+            # to the world frame and not relative to the tag!
             _, _, yaw = tf_transformations.euler_from_quaternion(orientation)
 
             # measurement 1: distance tag - base_link
