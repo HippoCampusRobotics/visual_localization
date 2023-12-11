@@ -1,8 +1,8 @@
 tag_poses:
 - frame_id: map
   id: 0
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -11,8 +11,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 1
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -21,8 +21,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 2
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -31,8 +31,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 3
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -41,8 +41,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 4
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -51,8 +51,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 5
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -61,8 +61,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 6
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -71,8 +71,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 7
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -81,8 +81,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 8
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -91,8 +91,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 9
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -101,8 +101,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 10
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -111,8 +111,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 11
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -121,8 +121,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 12
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -131,8 +131,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 13
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -141,8 +141,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 14
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -151,8 +151,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 15
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -161,8 +161,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 16
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -171,8 +171,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 17
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -181,8 +181,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 18
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -191,8 +191,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 19
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -201,8 +201,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 20
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -211,8 +211,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 21
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -221,8 +221,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 22
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -231,8 +231,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 23
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -241,8 +241,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 24
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -251,8 +251,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 25
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -261,8 +261,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 26
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -271,8 +271,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 27
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -281,8 +281,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 28
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -291,8 +291,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 29
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -301,8 +301,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 30
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -311,8 +311,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 31
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -321,8 +321,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 32
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -331,8 +331,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 33
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -341,8 +341,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 34
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -351,8 +351,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 35
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -361,8 +361,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 36
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -371,8 +371,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 37
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -381,8 +381,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 38
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -391,8 +391,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 39
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -401,8 +401,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 40
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -411,8 +411,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 41
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -421,8 +421,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 42
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -431,8 +431,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 43
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -441,8 +441,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 44
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -451,8 +451,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 45
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -461,8 +461,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 46
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -471,8 +471,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 47
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -481,8 +481,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 48
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -491,8 +491,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 49
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -501,8 +501,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 50
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -511,8 +511,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 51
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -521,8 +521,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 52
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -531,8 +531,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 53
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -541,8 +541,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 54
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -551,8 +551,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 55
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -561,8 +561,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 56
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -571,8 +571,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 57
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -581,8 +581,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 58
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -591,8 +591,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 59
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -601,8 +601,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 60
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -611,8 +611,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 61
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -621,8 +621,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 62
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -631,8 +631,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 63
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -641,8 +641,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 64
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -651,8 +651,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 65
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -661,8 +661,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 66
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -671,8 +671,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 67
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -681,8 +681,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 68
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -691,8 +691,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 69
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -701,8 +701,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 70
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -711,8 +711,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 71
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -721,8 +721,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 72
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -731,8 +731,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 73
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -741,8 +741,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 74
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -751,8 +751,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 75
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -761,8 +761,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 76
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -771,8 +771,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 77
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -781,8 +781,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 78
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -791,8 +791,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 79
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -801,8 +801,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 80
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -811,8 +811,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 81
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -821,8 +821,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 82
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -831,8 +831,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 83
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -841,8 +841,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 84
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -851,8 +851,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 85
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -861,8 +861,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 86
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -871,8 +871,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 87
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -881,8 +881,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 88
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -891,8 +891,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 89
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
@@ -901,8 +901,8 @@ tag_poses:
   z: -1.450
 - frame_id: map
   id: 90
-  qw: 1.000
-  qx: 0.000
+  qw: 0.000
+  qx: 1.000
   qy: 0.000
   qz: 0.000
   size: 0.075
