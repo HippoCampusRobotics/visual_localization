@@ -54,6 +54,7 @@ class EkfNode(Node):
         self.declare_parameter('camera_name', rclpy.Parameter.Type.STRING)
         self.declare_parameter('vehicle_name', rclpy.Parameter.Type.STRING)
         self.camera_name = str(self.get_parameter('camera_name').value)
+        self.vehicle_name = self.get_parameter('vehicle_name').value
 
         self.ekf_params = self.init_ekf_params()
         self.ekf = ExtendedKalmanFilter(self.ekf_params)
@@ -68,9 +69,10 @@ class EkfNode(Node):
         self.t_last_prediction = self.get_clock().now()
         self.tags = self.load_tag_poses()
 
-        self.vision_pose_pub = self.create_publisher(PoseWithCovarianceStamped,
-                                                     'vision_pose_cov',
-                                                     qos_profile=1)
+        self.vision_pose_pub = self.create_publisher(
+            PoseWithCovarianceStamped,
+            f'/{self.vehicle_name}/vision_pose_cov',
+            qos_profile=1)
 
         # publish all ekf states? -> TODO
         qos = QoSProfile(reliability=QoSReliabilityPolicy.BEST_EFFORT,
