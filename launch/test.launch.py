@@ -1,95 +1,120 @@
-import os
-
-import launch_ros
 from ament_index_python.packages import get_package_share_path
+from hippo_common.launch_helper import (
+    LaunchArgsDict,
+    declare_vehicle_name_and_sim_time,
+)
+from launch_ros.actions import Node, PushROSNamespace
 
-import launch
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, GroupAction
+from launch.substitutions import LaunchConfiguration
 
 
-def generate_launch_description():
-    package_name = 'visual_localization'
-    package_path = get_package_share_path(package_name)
-    default_ekf_params_path = package_path / ('config/ekf_params.yaml')
-    default_tag_poses_path = package_path / ('config/tag_poses.yaml')
+def declare_launch_args(launch_description: LaunchDescription):
+    declare_vehicle_name_and_sim_time(launch_description=launch_description)
 
-    default_vehicle_name = 'uuv00'
+    action = DeclareLaunchArgument(
+        name='camera_name',
+        default_value='vertical_camera',
+        description='The name of the camera.',
+    )
+    launch_description.add_action(action)
 
-    launch_args = [
-        launch.actions.DeclareLaunchArgument(
-            name='camera_name',
-            default_value='vertical_camera',
-            description='The name of the camera.',
-        ),
-        launch.actions.DeclareLaunchArgument(
-            name='vehicle_name',
-            default_value=default_vehicle_name,
-            description='Vehicle name used as top level namespace.',
-        ),
-        launch.actions.DeclareLaunchArgument(
-            name='ekf_params_path',
-            default_value=str(default_ekf_params_path),
-            description='Path to the mixer configuration .yaml file.'),
-        launch.actions.DeclareLaunchArgument(
-            name='tag_poses_path',
-            default_value=str(default_tag_poses_path),
-            description='Path to the tag poses .yaml file.'),
-        launch.actions.DeclareLaunchArgument(
-            name='use_sim_time',
-            default_value=str(False),
-        ),
-    ]
+    pkg_path = get_package_share_path('visual_localization')
+    default_path = str(pkg_path / 'config/ekf_params.yaml')
+    action = DeclareLaunchArgument(
+        name='ekf_config_file',
+        default_value=default_path,
+        description='Path to the ekf configuration .yaml file.',
+    )
+    launch_description.add_action(action)
 
-    use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time')
+    pkg_path = get_package_share_path('visual_localization')
+    default_path = str(pkg_path / 'config/tag_poses.yaml')
+    action = DeclareLaunchArgument(
+        name='tag_poses_file',
+        default_value=default_path,
+        description='Path to the tag poses .yaml file',
+    )
+    launch_description.add_action(action)
 
-    apriltag_settings = os.path.join(get_package_share_path('apriltag_ros'),
-                                     'config', 'settings.param.yaml')
+    pkg_path = get_package_share_path('visual_localization')
+    default_path = str(pkg_path / 'config/apriltag_config.yaml')
+    action = DeclareLaunchArgument(
+        name='apriltag_config_file',
+        default_value=default_path,
+        description='Path to the apriltag_config.yaml file.',
+    )
+    launch_description.add_action(action)
 
-    tags_standalone_path = os.path.join(
-        get_package_share_path('visual_localization'), 'config',
-        'tags_standalone.yaml')
 
-    ekf_node = launch_ros.actions.Node(
-        package=package_name,
+def create_relay_node():
+    args = LaunchArgsDict()
+    args.add_vehicle_name_and_sim_time()
+    args.add('input_topic')
+    args['output_topic'] = '/tf'
+    args['input_topic'] = 'tag_transforms'
+    return Node(
+        package='topic_tools',
+        executable='relay',
+        namespace=LaunchConfiguration('camera_name'),
+        parameters=[args],
+        emulate_tty=True,
+        output='screen',
+    )
+
+
+def create_ekf_node():
+    args = LaunchArgsDict()
+    args.add_vehicle_name_and_sim_time()
+    args.add('tag_poses_file')
+    args.add('camera_name')
+    return Node(
+        package='visual_localization',
         executable='vision_ekf_node',
+        namespace=LaunchConfiguration('camera_name'),
         parameters=[
-            launch.substitutions.LaunchConfiguration(
-                'ekf_params_path'),  # load yaml file with ekf parameters
+            args,
+            LaunchConfiguration('ekf_config_file'),
+        ],
+        emulate_tty=True,
+        output='screen',
+    )
+
+
+def create_apriltag_node():
+    args = LaunchArgsDict()
+    args.add_vehicle_name_and_sim_time()
+    return Node(
+        package='apriltag_ros',
+        executable='apriltag_node',
+        namespace=LaunchConfiguration('camera_name'),
+        name='apriltag_node',
+        remappings=[
+            ('/tf', 'tag_transforms'),
+        ],
+        parameters=[
+            args,
+            LaunchConfiguration('apriltag_config_file'),
             {
-                'tag_poses_path':
-                launch.substitutions.LaunchConfiguration('tag_poses_path'),
-                'camera_name':
-                launch.substitutions.LaunchConfiguration('camera_name'),
+                'pose_method': 'solve_pnp'
             },
         ],
         output='screen',
         emulate_tty=True,
     )
 
-    apriltag_node = launch_ros.actions.Node(
-        package='apriltag_ros',
-        executable='apriltag_ros_continuous_detector_node',
-        name='apriltag_node',
-        remappings=[('~/image_rect', 'vertical_camera/image_rect'),
-                    ('~/camera_info', 'vertical_camera/camera_info'),
-                    ('~/tag_detections', 'tag_detections')],
-        parameters=[
-            apriltag_settings,
-            tags_standalone_path,
-            {
-                'publish_tag_detections_image': True,
-                'use_sim_time': use_sim_time,
-            },
-        ],
-        output='screen',
-    )
 
-    nodes_group = launch.actions.GroupAction([
-        launch_ros.actions.PushRosNamespace(
-            launch.substitutions.LaunchConfiguration('vehicle_name')),
-        apriltag_node,
-        ekf_node,
-    ])
+def generate_launch_description():
+    launch_description = LaunchDescription()
+    declare_launch_args(launch_description=launch_description)
 
-    return launch.LaunchDescription(launch_args + [
-        nodes_group,
+    action = GroupAction([
+        PushROSNamespace(LaunchConfiguration('vehicle_name')),
+        create_ekf_node(),
+        create_apriltag_node(),
+        create_relay_node(),
     ])
+    launch_description.add_action(action)
+
+    return launch_description

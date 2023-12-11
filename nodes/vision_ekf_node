@@ -7,17 +7,20 @@ import rclpy
 import tf2_geometry_msgs
 import tf_transformations
 import yaml
-from apriltag_ros.msg import AprilTagDetectionArray
 from geometry_msgs.msg import (
+    Pose,
     PoseStamped,
     PoseWithCovarianceStamped,
+    Transform,
+    TransformStamped,
 )
 from rcl_interfaces.msg import ParameterDescriptor, ParameterType
 from rclpy.duration import Duration
 from rclpy.node import Node
+from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
+from tf2_msgs.msg import TFMessage
 from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
-from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
 from tf2_ros.transform_listener import TransformListener
 
 from visual_localization.ekf import (
@@ -26,12 +29,30 @@ from visual_localization.ekf import (
 )
 
 
+def get_tag_id(frame_id: str) -> int:
+    return int(frame_id.removeprefix('tag36h11:'))
+
+
+def transform_to_pose(tf: Transform):
+    pose = Pose()
+    pose.position.x = tf.translation.x
+    pose.position.y = tf.translation.y
+    pose.position.z = tf.translation.z
+
+    pose.orientation.w = tf.rotation.w
+    pose.orientation.x = tf.rotation.x
+    pose.orientation.y = tf.rotation.y
+    pose.orientation.z = tf.rotation.z
+    return pose
+
+
 class EkfNode(Node):
 
     def __init__(self, node_name):
         super().__init__(node_name=node_name)
 
         self.declare_parameter('camera_name', rclpy.Parameter.Type.STRING)
+        self.declare_parameter('vehicle_name', rclpy.Parameter.Type.STRING)
         self.camera_name = str(self.get_parameter('camera_name').value)
 
         self.ekf_params = self.init_ekf_params()
@@ -40,7 +61,6 @@ class EkfNode(Node):
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
-        self.tf_static_broadcaster = StaticTransformBroadcaster(self)
 
         self.initialized = False
         self.camera_frame_to_base_link_transform = None
@@ -49,25 +69,23 @@ class EkfNode(Node):
         self.tags = self.load_tag_poses()
 
         self.vision_pose_pub = self.create_publisher(PoseWithCovarianceStamped,
-                                                     'vision_pose_cov',
+                                                     'vision_pose_cov_test',
                                                      qos_profile=1)
 
         # publish all ekf states? -> TODO
+        qos = QoSProfile(reliability=QoSReliabilityPolicy.BEST_EFFORT,
+                         history=QoSHistoryPolicy.KEEP_LAST,
+                         depth=1)
 
-        self.tag_detections_sub = self.create_subscription(
-            AprilTagDetectionArray,
-            'tag_detections',
-            self.on_tag_detections,
-            qos_profile=1)
+        self.tag_transforms_sub = self.create_subscription(
+            TFMessage, 'tag_transforms', self.on_tag_transforms, qos)
 
         self.orientation_sub = self.create_subscription(
-            PoseStamped,
-            'mavros/local_position/pose',
-            self.on_orientation,
-            qos_profile=1)
+            PoseStamped, 'mavros/local_position/pose', self.on_orientation, qos)
 
         self.predict_timer = self.create_timer(timer_period_sec=(1 / 30),
                                                callback=self.predict)
+
         self.send_vision_pose_timer = self.create_timer(
             timer_period_sec=(1 / 30), callback=self.send_vision_pose)
 
@@ -99,28 +117,35 @@ class EkfNode(Node):
     def init_tf_transforms(self):
         # look up transform from camera frame to base link
         def get_prefix(node):
-            name = node.get_namespace()
+            name = self.get_parameter('vehicle_name').value
             name = name.strip('/')
             return name
 
         prefix = get_prefix(self)
-        camera_link_name = prefix + '/' + self.camera_name + '_frame'
-        base_link_name = prefix + '/base_link'
+        camera_frame_name = prefix + '/' + self.camera_name
+        camera_link_name = prefix + '/vision/' + self.camera_name + '_link'
+        base_link_name = prefix + '/vision/base_link'
         timeout = Duration(seconds=2.0)
         try:
             self.camera_frame_to_base_link_transform = (
                 self.tf_buffer.lookup_transform(target_frame=base_link_name,
-                                                source_frame=camera_link_name,
-                                                time=self.get_clock().now(),
+                                                source_frame=camera_frame_name,
+                                                time=rclpy.time.Time(),
+                                                timeout=timeout))
+            self.camera_frame_to_camera_link_transform = (
+                self.tf_buffer.lookup_transform(target_frame=camera_link_name,
+                                                source_frame=camera_frame_name,
+                                                time=rclpy.time.Time(),
                                                 timeout=timeout))
             return True
-        except TransformException:
+        except TransformException as e:
             self.get_logger().warning(
                 f'After waiting {timeout}, could not look up transform from'
                 ' camera frame to base link for vehicle')
+            self.get_logger().warn(f'{e}')
             return False
 
-    def on_tag_detections(self, msg: AprilTagDetectionArray):
+    def on_tag_transforms(self, msg: TFMessage):
         if not self.initialized:
             self.initialized = self.init_tf_transforms()
             if not self.initialized:
@@ -128,22 +153,34 @@ class EkfNode(Node):
             else:
                 self.get_logger().info('Initialized TF transforms for EKF.')
 
-        num_detected_tags = len(msg.detections)
+        num_detected_tags = len(msg.transforms)
         if not num_detected_tags:
             return  # no tags detected, nothing to update
 
         measurements = np.zeros((num_detected_tags * self.dim_meas, 1))
         detected_tags = np.zeros((num_detected_tags, 4))
 
-        for i, tag in enumerate(msg.detections):
-            tag_id = int(tag.id[0])
+        tf_stamped: TransformStamped
+        for i, tf_stamped in enumerate(msg.transforms):
+            tag_id = get_tag_id(tf_stamped.child_frame_id)
 
             # add this tag's information to list of detected tags
             index = np.where(self.tags[:, 0] == tag_id)
             detected_tags[i, :] = self.tags[index, 0:4]
 
+            tag_pose_local = Pose()
+            tag_pose_local.orientation.w = 1.0
+
+            # tag_pose_in_camera_frame = tf2_geometry_msgs.do_transform_pose(
+            #     tag_pose_local, tf_stamped)
+            tag_pose_in_camera_frame = transform_to_pose(tf_stamped.transform)
+            tf2_geometry_msgs.do_transform_pose(
+                tag_pose_in_camera_frame,
+                self.camera_frame_to_camera_link_transform)
+
             tag_pose_in_base_link = tf2_geometry_msgs.do_transform_pose(
-                tag.pose.pose.pose, self.camera_frame_to_base_link_transform)
+                tag_pose_in_camera_frame,
+                self.camera_frame_to_base_link_transform)
 
             position_tag_in_base_link = np.array([
                 tag_pose_in_base_link.position.x,
@@ -213,8 +250,8 @@ class EkfNode(Node):
 
     def load_tag_poses(self):
         descriptor = ParameterDescriptor(type=ParameterType.PARAMETER_STRING)
-        self.declare_parameter('tag_poses_path', descriptor=descriptor)
-        filepath = self.get_parameter('tag_poses_path').value
+        self.declare_parameter('tag_poses_file', descriptor=descriptor)
+        filepath = self.get_parameter('tag_poses_file').value
         if not isinstance(filepath, str):
             print('no value for tag_poses_file param')
             exit(1)
