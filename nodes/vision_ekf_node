@@ -69,7 +69,7 @@ class EkfNode(Node):
         self.tags = self.load_tag_poses()
 
         self.vision_pose_pub = self.create_publisher(PoseWithCovarianceStamped,
-                                                     'vision_pose_cov_test',
+                                                     'vision_pose_cov',
                                                      qos_profile=1)
 
         # publish all ekf states? -> TODO
@@ -122,9 +122,9 @@ class EkfNode(Node):
             return name
 
         prefix = get_prefix(self)
-        camera_frame_name = prefix + '/' + self.camera_name
-        camera_link_name = prefix + '/vision/' + self.camera_name + '_link'
-        base_link_name = prefix + '/vision/base_link'
+        camera_frame_name = prefix + '/' + self.camera_name + '_frame'
+        camera_link_name = prefix + '/' + self.camera_name + '_link'
+        base_link_name = prefix + '/base_link'
         timeout = Duration(seconds=2.0)
         try:
             self.camera_frame_to_base_link_transform = (

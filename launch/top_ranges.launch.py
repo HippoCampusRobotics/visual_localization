@@ -21,31 +21,13 @@ def declare_launch_args(launch_description: LaunchDescription):
 
     action = DeclareLaunchArgument(
         name='camera_name',
-        default_value='vertical_camera',
+        default_value='front_camera',
         description='The name of the camera.',
     )
     launch_description.add_action(action)
 
     pkg_path = get_package_share_path('visual_localization')
-    default_path = str(pkg_path / 'config/ekf_params.yaml')
-    action = DeclareLaunchArgument(
-        name='ekf_config_file',
-        default_value=default_path,
-        description='Path to the ekf configuration .yaml file.',
-    )
-    launch_description.add_action(action)
-
-    pkg_path = get_package_share_path('visual_localization')
-    default_path = str(pkg_path / 'config/tag_poses.yaml')
-    action = DeclareLaunchArgument(
-        name='tag_poses_file',
-        default_value=default_path,
-        description='Path to the tag poses .yaml file',
-    )
-    launch_description.add_action(action)
-
-    pkg_path = get_package_share_path('visual_localization')
-    default_path = str(pkg_path / 'config/apriltag_config.yaml')
+    default_path = str(pkg_path / 'config/apriltag_ranges_config.yaml')
     action = DeclareLaunchArgument(
         name='apriltag_config_file',
         default_value=default_path,
@@ -72,6 +54,16 @@ def create_apriltag_viz_node():
     return container
 
 
+def create_ranges_node():
+    return Node(
+        name='range_sensor',
+        executable='ranges_node',
+        package='visual_localization',
+        emulate_tty=True,
+        output='screen',
+    )
+
+
 def create_relay_node():
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
@@ -83,24 +75,6 @@ def create_relay_node():
         executable='relay',
         namespace=LaunchConfiguration('camera_name'),
         parameters=[args],
-        emulate_tty=True,
-        output='screen',
-    )
-
-
-def create_ekf_node():
-    args = LaunchArgsDict()
-    args.add_vehicle_name_and_sim_time()
-    args.add('tag_poses_file')
-    args.add('camera_name')
-    return Node(
-        package='visual_localization',
-        executable='vision_ekf_node',
-        namespace=LaunchConfiguration('camera_name'),
-        parameters=[
-            args,
-            LaunchConfiguration('ekf_config_file'),
-        ],
         emulate_tty=True,
         output='screen',
     )
@@ -155,12 +129,12 @@ def generate_launch_description():
 
     action = GroupAction([
         PushROSNamespace(LaunchConfiguration('vehicle_name')),
-        create_ekf_node(),
         create_apriltag_node(),
         create_relay_node(),
         create_apriltag_viz_node(),
         include_image_decoder_node(),
         include_image_rectification_node(),
+        create_ranges_node(),
     ])
     launch_description.add_action(action)
 
