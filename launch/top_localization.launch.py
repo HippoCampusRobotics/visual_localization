@@ -63,7 +63,7 @@ def create_apriltag_viz_node():
         remappings=[('image', 'image_rect')],
     )
     container = ComposableNodeContainer(
-        name='viz_container',
+        name=[LaunchConfiguration('camera_name'), '_viz_container'],
         namespace='',
         package='rclcpp_components',
         executable='component_container',
