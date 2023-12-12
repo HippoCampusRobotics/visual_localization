@@ -3,8 +3,7 @@ from hippo_common.launch_helper import (
     LaunchArgsDict,
     declare_vehicle_name_and_sim_time,
 )
-from launch_ros.actions import ComposableNodeContainer, Node, PushROSNamespace
-from launch_ros.descriptions import ComposableNode
+from launch_ros.actions import Node, PushROSNamespace
 
 from launch import LaunchDescription
 from launch.actions import (
@@ -37,21 +36,18 @@ def declare_launch_args(launch_description: LaunchDescription):
 
 
 def create_apriltag_viz_node():
-    composable_node = ComposableNode(
-        name='viz',
-        namespace=LaunchConfiguration('camera_name'),
+    args = LaunchArgsDict()
+    args.add_vehicle_name_and_sim_time()
+    args['line_thickness'] = 5
+    args['alpha'] = 1.0
+    return Node(
         package='apriltag_viz',
-        plugin='AprilVizNode',
-        remappings=[('image', 'image_rect')],
+        executable='apriltag_viz',
+        namespace=LaunchConfiguration('camera_name'),
+        parameters=[args],
+        emulate_tty=True,
+        output='screen',
     )
-    container = ComposableNodeContainer(
-        name='viz_container',
-        namespace='',
-        package='rclcpp_components',
-        executable='component_container',
-        composable_node_descriptions=[composable_node],
-        output='screen')
-    return container
 
 
 def create_ranges_node():
