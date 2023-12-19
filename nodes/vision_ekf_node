@@ -168,6 +168,11 @@ class EkfNode(Node):
 
             # add this tag's information to list of detected tags
             index = np.where(self.tags[:, 0] == tag_id)
+            if len(index[0]) != 1:
+                self.get_logger().error(
+                    'Expected to find exactly one occurance of '
+                    f'tag with id={tag_id}. But found occurances at {index}')
+                continue
             detected_tags[i, :] = self.tags[index, 0:4]
 
             tag_pose_local = Pose()
