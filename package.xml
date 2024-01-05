@@ -17,6 +17,10 @@
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <depend>rclpy</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
   <depend>hippo_msgs</depend>
   <depend>std_srvs</depend>
   <depend>tf_transformations</depend>
