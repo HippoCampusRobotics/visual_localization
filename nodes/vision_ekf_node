@@ -209,11 +209,11 @@ class EkfNode(Node):
                                 y=q_meas[1],
                                 z=q_meas[2],
                                 w=q_meas[3])
-            q_truth = self.tags[index, 4:]
+            q_truth = self.tags[index, 4:].flatten().tolist()
             q_truth = Quaternion(x=q_truth[0],
                                  y=q_truth[1],
                                  z=q_truth[2],
-                                 w=q_truth[4])
+                                 w=q_truth[3])
             q = q_truth * q_meas
             # TODO(lennartalff): THIS IS WRONG! We want the yaw angle relative
             # to the world frame and not relative to the tag!
