@@ -14,6 +14,7 @@ from geometry_msgs.msg import (
     Transform,
     TransformStamped,
 )
+from pyquaternion import Quaternion
 from rcl_interfaces.msg import ParameterDescriptor, ParameterType
 from rclpy.duration import Duration
 from rclpy.node import Node
@@ -194,7 +195,7 @@ class EkfNode(Node):
                 tag_pose_in_base_link.position.y,
                 tag_pose_in_base_link.position.z
             ]).reshape(-1, 1)
-            orientation = [
+            q_meas = [
                 tag_pose_in_base_link.orientation.x,
                 tag_pose_in_base_link.orientation.y,
                 tag_pose_in_base_link.orientation.z,
@@ -203,10 +204,21 @@ class EkfNode(Node):
 
             # inverse quaternion to get base_link orientation
             # in tag frame, which has same orientation as map frame
-            orientation = tf_transformations.quaternion_inverse(orientation)
+            q_meas = tf_transformations.quaternion_inverse(q_meas)
+            q_meas = Quaternion(x=q_meas[0],
+                                y=q_meas[1],
+                                z=q_meas[2],
+                                w=q_meas[3])
+            q_truth = self.tags[index, 4:]
+            q_truth = Quaternion(x=q_truth[0],
+                                 y=q_truth[1],
+                                 z=q_truth[2],
+                                 w=q_truth[4])
+            q = q_truth * q_meas
             # TODO(lennartalff): THIS IS WRONG! We want the yaw angle relative
             # to the world frame and not relative to the tag!
-            _, _, yaw = tf_transformations.euler_from_quaternion(orientation)
+            _, _, yaw = tf_transformations.euler_from_quaternion(
+                [q[1], q[2], q[3], q[0]])
 
             # measurement 1: distance tag - base_link
             measurements[self.dim_meas * i,
