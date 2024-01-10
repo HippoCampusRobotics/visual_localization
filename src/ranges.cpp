@@ -20,7 +20,7 @@ class Ranges : public rclcpp::Node {
     rclcpp::QoS qos = rclcpp::SensorDataQoS();
     qos.keep_last(1);
 
-    tag_ids = {{0, 0}, {1, 1}, {2, 2}, {3, 3}};
+    tag_ids_ = {{0, 0}, {1, 1}, {2, 2}, {3, 3}};
     ranges_pub_ =
         create_publisher<hippo_msgs::msg::RangeMeasurementArray>("ranges", qos);
     tag_transform_sub_ = create_subscription<tf2_msgs::msg::TFMessage>(
@@ -36,12 +36,12 @@ class Ranges : public rclcpp::Node {
     for (const auto &tf_stamped : _msg->transforms) {
       auto source = tf_stamped.child_frame_id;
       source.erase(std::remove_if(source.begin(), source.end(),
-                            [](char c) { return !std::isdigit(c); }),
-             source.end());
+                                  [](char c) { return !std::isdigit(c); }),
+                   source.end());
       int tag_id = std::stoi(source);
       int range_id;
       try {
-        range_id = tag_ids.at(tag_id);
+        range_id = tag_ids_.at(tag_id);
 
       } catch (const std::out_of_range &e) {
         RCLCPP_WARN(get_logger(),
@@ -65,7 +65,7 @@ class Ranges : public rclcpp::Node {
   rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr tag_transform_sub_;
   rclcpp::Publisher<hippo_msgs::msg::RangeMeasurementArray>::SharedPtr
       ranges_pub_;
-  std::unordered_map<int, int> tag_ids;
+  std::unordered_map<int, int> tag_ids_;
 };
 
 int main(int argc, char *argv[]) {
