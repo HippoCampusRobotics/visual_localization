@@ -24,6 +24,8 @@
   <depend>hippo_msgs</depend>
   <depend>std_srvs</depend>
   <depend>tf_transformations</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
