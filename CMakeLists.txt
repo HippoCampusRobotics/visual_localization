@@ -67,7 +67,6 @@ install(TARGETS ${exec_name}
 # Install Python executables
 install(PROGRAMS
   nodes/vision_ekf_node
-  nodes/ranges_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
