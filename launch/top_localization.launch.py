@@ -139,7 +139,7 @@ def create_apriltag_node():
 
 
 def include_image_decoder_node():
-    package_path = get_package_share_path('mjpeg_cam')
+    package_path = get_package_share_path('visual_localization')
     path = str(package_path / 'launch/image_decoder.launch.py')
     source = PythonLaunchDescriptionSource(path)
     args = LaunchArgsDict()
@@ -150,7 +150,7 @@ def include_image_decoder_node():
 
 
 def include_image_rectification_node():
-    package_path = get_package_share_path('mjpeg_cam')
+    package_path = get_package_share_path('visual_localization')
     path = str(package_path / 'launch/image_rectification.launch.py')
     source = PythonLaunchDescriptionSource(path)
     args = LaunchArgsDict()
