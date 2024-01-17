@@ -138,6 +138,21 @@ def create_apriltag_node():
     )
 
 
+def create_px4_bridge_node():
+    args = LaunchArgsDict()
+    args.add_vehicle_name_and_sim_time()
+    return Node(
+        package='visual_localization',
+        executable='px4_bridge',
+        name='px4_bridge_node',
+        parameters=[
+            args,
+        ],
+        output='screen',
+        emulate_tty=True,
+    )
+
+
 def include_image_decoder_node():
     package_path = get_package_share_path('visual_localization')
     path = str(package_path / 'launch/image_decoder.launch.py')
@@ -169,6 +184,7 @@ def generate_launch_description():
         create_tag_tf_node(),
         create_relay_node(),
         create_apriltag_viz_node(),
+        create_px4_bridge_node(),
         include_image_decoder_node(),
         include_image_rectification_node(),
     ])

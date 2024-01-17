@@ -83,6 +83,7 @@ class EkfNode(Node):
         self.tag_transforms_sub = self.create_subscription(
             TFMessage, 'tag_transforms', self.on_tag_transforms, qos)
 
+        # TODO: Update this subscriber!
         self.orientation_sub = self.create_subscription(
             PoseStamped, 'mavros/local_position/pose', self.on_orientation, qos)
 
