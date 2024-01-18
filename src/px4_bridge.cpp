@@ -38,7 +38,7 @@ Px4Bridge::Px4Bridge(rclcpp::NodeOptions const &_options)
 
   vehicle_velocity_inertial_debug_pub_ =
       create_publisher<geometry_msgs::msg::Vector3Stamped>(
-          "debug/velocity_inertial", rclcpp::SystemDefaultsQoS());
+          "~/debug/velocity_inertial", rclcpp::SystemDefaultsQoS());
 
   px4_vehicle_odometry_sub_ =
       create_subscription<px4_msgs::msg::VehicleOdometry>(
