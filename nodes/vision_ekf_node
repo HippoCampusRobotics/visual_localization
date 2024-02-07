@@ -75,6 +75,11 @@ class EkfNode(Node):
             f'/{self.vehicle_name}/vision_pose_cov',
             qos_profile=1)
 
+        self.naive_pose_pub = self.create_publisher(
+            PoseWithCovarianceStamped,
+            f'/{self.vehicle_name}/vision_pose_naive',
+            qos_profile=1)
+
         # publish all ekf states? -> TODO
         qos = QoSProfile(reliability=QoSReliabilityPolicy.BEST_EFFORT,
                          history=QoSHistoryPolicy.KEEP_LAST,
@@ -164,6 +169,8 @@ class EkfNode(Node):
         detected_tags = np.zeros((num_detected_tags, 4))
 
         tf_stamped: TransformStamped
+        scaler = 1.0 / num_detected_tags
+        p_avg = np.zeros([3, 1])
         for i, tf_stamped in enumerate(msg.transforms):
             tag_id = get_tag_id(tf_stamped.child_frame_id)
 
@@ -201,6 +208,9 @@ class EkfNode(Node):
                 tag_pose_in_base_link.orientation.z,
                 tag_pose_in_base_link.orientation.w
             ]
+            p_vehicle_in_map = self.tags[index, 1:4].reshape(
+                -1, 1) - position_tag_in_base_link
+            p_avg += p_vehicle_in_map * scaler
 
             # inverse quaternion to get base_link orientation
             # in tag frame, which has same orientation as map frame
@@ -226,6 +236,13 @@ class EkfNode(Node):
             # measurement 2: yaw angle in map frame
             measurements[self.dim_meas * i + 1, 0] = yaw
 
+        msg = PoseWithCovarianceStamped()
+        msg.header.frame_id = 'map'
+        msg.header.stamp = tf_stamped.header.stamp
+        msg.pose.pose.position.x = p_avg[0, 0]
+        msg.pose.pose.position.y = p_avg[1, 0]
+        msg.pose.pose.position.z = p_avg[2, 0]
+        self.naive_pose_pub.publish(msg)
         self.ekf.update_vision_data(measurements, detected_tags)
 
     def on_orientation(self, msg: PoseStamped):
