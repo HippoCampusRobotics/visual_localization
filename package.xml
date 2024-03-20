@@ -19,9 +19,9 @@
   <depend>rclpy</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
-  
+
   <depend>cv_bridge</depend>
-  
+
   <depend>hippo_common</depend>
   <depend>hippo_msgs</depend>
   <depend>tf_transformations</depend>
@@ -33,7 +33,6 @@
   <depend>sensor_msgs</depend>
   <depend>px4_msgs</depend>
   <depend>std_srvs</depend>
-  <depend>pyquaternion</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
