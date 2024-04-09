@@ -102,13 +102,13 @@ def create_ekf_node():
     )
 
 
-def create_tag_tf_node():
+def create_tag_markers_node():
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
     args.add('tag_poses_file')
     return Node(
         package='hippo_common',
-        executable='tf_publisher_tags',
+        executable='tag_markers_publisher',
         parameters=[args],
         emulate_tty=True,
         output='screen',
@@ -181,7 +181,7 @@ def generate_launch_description():
         PushROSNamespace(LaunchConfiguration('vehicle_name')),
         create_ekf_node(),
         create_apriltag_node(),
-        create_tag_tf_node(),
+        create_tag_markers_node(),
         create_relay_node(),
         create_apriltag_viz_node(),
         create_px4_bridge_node(),
