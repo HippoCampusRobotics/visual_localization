@@ -2,8 +2,8 @@
 Changelog for package visual_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2024-08-03)
+------------------
 * changed tag tf to tag marker node
 * fixed pyquaternion dependency
 * make debug topic private
