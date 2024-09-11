@@ -1,81 +1,83 @@
 from __future__ import print_function
 
 import threading
-from dataclasses import astuple, dataclass
+from dataclasses import astuple, dataclass, field
 
 import numpy as np
 
 
 @dataclass
 class InitialState:
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
-    roll: float = 0.0
-    pitch: float = 0.0
-    yaw: float = 0.0
-    dx: float = 0.0
-    dy: float = 0.0
-    dz: float = 0.0
-    droll: float = 0.0
-    dpitch: float = 0.0
-    dyaw: float = 0.0
+    x: float = field(default_factory=lambda: 0.0)
+    y: float = field(default_factory=lambda: 0.0)
+    z: float = field(default_factory=lambda: 0.0)
+    roll: float = field(default_factory=lambda: 0.0)
+    pitch: float = field(default_factory=lambda: 0.0)
+    yaw: float = field(default_factory=lambda: 0.0)
+    dx: float = field(default_factory=lambda: 0.0)
+    dy: float = field(default_factory=lambda: 0.0)
+    dz: float = field(default_factory=lambda: 0.0)
+    droll: float = field(default_factory=lambda: 0.0)
+    dpitch: float = field(default_factory=lambda: 0.0)
+    dyaw: float = field(default_factory=lambda: 0.0)
 
 
 @dataclass
 class InitialStateCovariance:
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
-    roll: float = 0.0
-    pitch: float = 0.0
-    yaw: float = 0.0
-    dx: float = 0.0
-    dy: float = 0.0
-    dz: float = 0.0
-    droll: float = 0.0
-    dpitch: float = 0.0
-    dyaw: float = 0.0
+    x: float = field(default_factory=lambda: 0.0)
+    y: float = field(default_factory=lambda: 0.0)
+    z: float = field(default_factory=lambda: 0.0)
+    roll: float = field(default_factory=lambda: 0.0)
+    pitch: float = field(default_factory=lambda: 0.0)
+    yaw: float = field(default_factory=lambda: 0.0)
+    dx: float = field(default_factory=lambda: 0.0)
+    dy: float = field(default_factory=lambda: 0.0)
+    dz: float = field(default_factory=lambda: 0.0)
+    droll: float = field(default_factory=lambda: 0.0)
+    dpitch: float = field(default_factory=lambda: 0.0)
+    dyaw: float = field(default_factory=lambda: 0.0)
 
 
 @dataclass
 class ProcessNoise:
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
-    roll: float = 0.0
-    pitch: float = 0.0
-    yaw: float = 0.0
-    dx: float = 0.0
-    dy: float = 0.0
-    dz: float = 0.0
-    droll: float = 0.0
-    dpitch: float = 0.0
-    dyaw: float = 0.0
+    x: float = field(default_factory=lambda: 0.0)
+    y: float = field(default_factory=lambda: 0.0)
+    z: float = field(default_factory=lambda: 0.0)
+    roll: float = field(default_factory=lambda: 0.0)
+    pitch: float = field(default_factory=lambda: 0.0)
+    yaw: float = field(default_factory=lambda: 0.0)
+    dx: float = field(default_factory=lambda: 0.0)
+    dy: float = field(default_factory=lambda: 0.0)
+    dz: float = field(default_factory=lambda: 0.0)
+    droll: float = field(default_factory=lambda: 0.0)
+    dpitch: float = field(default_factory=lambda: 0.0)
+    dyaw: float = field(default_factory=lambda: 0.0)
 
 
 @dataclass
 class MeasurementNoise:
-    distance: float = 0.0
-    yaw: float = 0.0
+    distance: float = field(default_factory=lambda: 0.0)
+    yaw: float = field(default_factory=lambda: 0.0)
 
 
 @dataclass
 class MeasurementNoiseOrientation:
-    roll: float = 0.0
-    pitch: float = 0.0
+    roll: float = field(default_factory=lambda: 0.0)
+    pitch: float = field(default_factory=lambda: 0.0)
 
 
 @dataclass
 class EkfParams:
-    initial_state: InitialState = InitialState()
-    initial_state_covariance: InitialStateCovariance = InitialStateCovariance()
-    process_noise: ProcessNoise = ProcessNoise()
-    measurement_noise: MeasurementNoise = MeasurementNoise()
-    measurement_noise_orientation: MeasurementNoiseOrientation = (
-        MeasurementNoiseOrientation())
-    dim_meas: int = 0
-    dim_state: int = 0
+    initial_state: InitialState = field(default_factory=lambda: InitialState())
+    initial_state_covariance: InitialStateCovariance = field(
+        default_factory=lambda: InitialStateCovariance())
+    process_noise: ProcessNoise = field(default_factory=lambda: ProcessNoise())
+    measurement_noise: MeasurementNoise = field(
+        default_factory=lambda: MeasurementNoise())
+    measurement_noise_orientation: MeasurementNoiseOrientation = field(
+        default_factory=lambda: MeasurementNoiseOrientation())
+    dim_meas: int = field(default_factory=lambda: 0)
+    dim_state: int = field(default_factory=lambda: 0)
 
 
 class ExtendedKalmanFilter(object):
