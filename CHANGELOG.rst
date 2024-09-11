@@ -2,6 +2,11 @@
 Changelog for package visual_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fixed dataclass defaults
+* Contributors: Thies Lennart Alff
+
 0.0.1 (2024-08-03)
 ------------------
 * changed tag tf to tag marker node
