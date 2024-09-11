@@ -4,6 +4,10 @@ Changelog for package visual_localization
 
 Forthcoming
 -----------
+* updated changelog
+* fixed declare params
+* Contributors: Thies Lennart Alff
+
 * fixed declare params
 * Contributors: Thies Lennart Alff
 
