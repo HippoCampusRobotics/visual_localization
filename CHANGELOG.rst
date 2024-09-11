@@ -2,6 +2,11 @@
 Changelog for package visual_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fixed declare params
+* Contributors: Thies Lennart Alff
+
 0.0.2 (2024-09-11)
 ------------------
 * fixed dataclass defaults
