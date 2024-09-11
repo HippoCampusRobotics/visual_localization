@@ -11,12 +11,15 @@ import yaml
 
 def float_representer(dumper, value):
     text = '{0:.3f}'.format(value)
-    return dumper.represent_scalar(u'tag:yaml.org,2002:float', text)
+    return dumper.represent_scalar('tag:yaml.org,2002:float', text)
 
 
-def generate_even_grid(size: Tuple[int, int], offset: Tuple[float, float,
-                                                            float],
-                       distance_between_tags: Tuple[float, float], tag_size):
+def generate_even_grid(
+    size: Tuple[int, int],
+    offset: Tuple[float, float, float],
+    distance_between_tags: Tuple[float, float],
+    tag_size,
+):
     data = {}
     data['tag_poses'] = []
     tag_id = 0
@@ -26,18 +29,20 @@ def generate_even_grid(size: Tuple[int, int], offset: Tuple[float, float,
             y = row * distance_between_tags[1] + offset[1]
             z = offset[2]
             quat = tf_transformations.quaternion_from_euler(0, 0, 0)
-            data['tag_poses'].append({
-                'frame_id': 'map',
-                'id': tag_id,
-                'size': tag_size,
-                'x': x,
-                'y': y,
-                'z': z,
-                'qw': float(quat[3]),
-                'qx': float(quat[0]),
-                'qy': float(quat[1]),
-                'qz': float(quat[2]),
-            })
+            data['tag_poses'].append(
+                {
+                    'frame_id': 'map',
+                    'id': tag_id,
+                    'size': tag_size,
+                    'x': x,
+                    'y': y,
+                    'z': z,
+                    'qw': float(quat[3]),
+                    'qx': float(quat[0]),
+                    'qy': float(quat[1]),
+                    'qz': float(quat[2]),
+                }
+            )
             tag_id += 1
     return data
 
@@ -57,7 +62,7 @@ def generate_tag_bundle(tag_poses, name: str):
     layout = {'ids': []}
     for tag in tag_poses['tag_poses']:
         layout['ids'].append(tag['id'])
-        layout[tag["id"]] = {
+        layout[tag['id']] = {
             'size': tag['size'],
             'x': tag['x'],
             'y': tag['y'],
@@ -77,37 +82,47 @@ def convert_to_rosparam(data):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--tag-size',
-                        default=0.05,
-                        help='Tag size in meters including the border.')
-    parser.add_argument('--grid-size',
-                        nargs=2,
-                        default=[13, 7],
-                        type=int,
-                        help='Number of rows and cols of the tag grid.')
-    parser.add_argument('--offset',
-                        nargs=3,
-                        default=[0.2, 0.3, -1.45],
-                        type=float,
-                        help='Offset of the tag grid relative to the origin')
-    parser.add_argument('--distance',
-                        nargs=2,
-                        default=[0.25, 0.3],
-                        type=float,
-                        help='Distance between tags in x- and y-direction')
-    parser.add_argument('--out-dir',
-                        required=True,
-                        help='Output directory of the generated files.')
+    parser.add_argument(
+        '--tag-size',
+        default=0.05,
+        help='Tag size in meters including the border.',
+    )
+    parser.add_argument(
+        '--grid-size',
+        nargs=2,
+        default=[13, 7],
+        type=int,
+        help='Number of rows and cols of the tag grid.',
+    )
+    parser.add_argument(
+        '--offset',
+        nargs=3,
+        default=[0.2, 0.3, -1.45],
+        type=float,
+        help='Offset of the tag grid relative to the origin',
+    )
+    parser.add_argument(
+        '--distance',
+        nargs=2,
+        default=[0.25, 0.3],
+        type=float,
+        help='Distance between tags in x- and y-direction',
+    )
+    parser.add_argument(
+        '--out-dir',
+        required=True,
+        help='Output directory of the generated files.',
+    )
     args = parser.parse_args()
 
     yaml.add_representer(float, float_representer)
-    pose_data = generate_even_grid(args.grid_size, args.offset, args.distance,
-                                   args.tag_size)
+    pose_data = generate_even_grid(
+        args.grid_size, args.offset, args.distance, args.tag_size
+    )
     if args.out_dir == '-':
-        yaml.dump(pose_data,
-                  sys.stdout,
-                  default_flow_style=True,
-                  width=float('inf'))
+        yaml.dump(
+            pose_data, sys.stdout, default_flow_style=True, width=float('inf')
+        )
     else:
         filename = 'tag_poses.yaml'
         filepath = os.path.join(args.out_dir, filename)
@@ -139,10 +154,18 @@ def main():
             tags = np.zeros((num_tags, 8))
             for tag in data['tag_poses']:
                 if tag['frame_id'] == 'map':
-                    tags[tag['id'], :] = np.array([
-                        tag['id'], tag['x'], tag['y'], tag['z'], tag['qx'],
-                        tag['qy'], tag['qz'], tag['qw']
-                    ])
+                    tags[tag['id'], :] = np.array(
+                        [
+                            tag['id'],
+                            tag['x'],
+                            tag['y'],
+                            tag['z'],
+                            tag['qx'],
+                            tag['qy'],
+                            tag['qz'],
+                            tag['qw'],
+                        ]
+                    )
                 else:
                     print('Tag not in map frame! - not implemented yet')
 

@@ -15,9 +15,9 @@ from geometry_msgs.msg import (
     TransformStamped,
 )
 from pyquaternion import Quaternion
-from rcl_interfaces.msg import ParameterDescriptor, ParameterType
 from rclpy.duration import Duration
 from rclpy.node import Node
+from rclpy.parameter import Parameter
 from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
 from tf2_msgs.msg import TFMessage
 from tf2_ros import TransformException
@@ -48,7 +48,6 @@ def transform_to_pose(tf: Transform):
 
 
 class EkfNode(Node):
-
     def __init__(self, node_name):
         super().__init__(node_name=node_name)
 
@@ -73,46 +72,54 @@ class EkfNode(Node):
         self.vision_pose_pub = self.create_publisher(
             PoseWithCovarianceStamped,
             f'/{self.vehicle_name}/vision_pose_cov',
-            qos_profile=1)
+            qos_profile=1,
+        )
 
         # publish all ekf states? -> TODO
-        qos = QoSProfile(reliability=QoSReliabilityPolicy.BEST_EFFORT,
-                         history=QoSHistoryPolicy.KEEP_LAST,
-                         depth=1)
+        qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1,
+        )
 
         self.tag_transforms_sub = self.create_subscription(
-            TFMessage, 'tag_transforms', self.on_tag_transforms, qos)
+            TFMessage, 'tag_transforms', self.on_tag_transforms, qos
+        )
 
         # TODO: Update this subscriber!
         self.orientation_sub = self.create_subscription(
-            PoseStamped, 'mavros/local_position/pose', self.on_orientation, qos)
+            PoseStamped, 'mavros/local_position/pose', self.on_orientation, qos
+        )
 
-        self.predict_timer = self.create_timer(timer_period_sec=(1 / 30),
-                                               callback=self.predict)
+        self.predict_timer = self.create_timer(
+            timer_period_sec=(1 / 30), callback=self.predict
+        )
 
         self.send_vision_pose_timer = self.create_timer(
-            timer_period_sec=(1 / 30), callback=self.send_vision_pose)
+            timer_period_sec=(1 / 30), callback=self.send_vision_pose
+        )
 
     def init_ekf_params(self):
-
         def recursion(data: Any, name: str):
             if not dataclasses.is_dataclass(data):
-                descriptor = ParameterDescriptor()
                 if isinstance(data, int):
-                    descriptor.type = ParameterType.PARAMETER_INTEGER
+                    param_type = Parameter.Type.INTEGER
                 elif isinstance(data, float):
-                    descriptor.type = ParameterType.PARAMETER_DOUBLE
+                    param_type = Parameter.Type.DOUBLE
                 elif isinstance(data, str):
-                    descriptor.type = ParameterType.PARAMETER_STRING
+                    param_type = Parameter.Type.STRING
                 else:
                     raise TypeError(f'Unsupported type "{type(data)}"')
-                self.declare_parameter(name, descriptor=descriptor)
+                self.declare_parameter(name, value=param_type)
                 return self.get_parameter(name).value
             for field_name in data.__annotations__.keys():
                 setattr(
-                    data, field_name,
-                    recursion(getattr(data, f'{field_name}'),
-                              f'{name}.{field_name}'))
+                    data,
+                    field_name,
+                    recursion(
+                        getattr(data, f'{field_name}'), f'{name}.{field_name}'
+                    ),
+                )
             return data
 
         ekf_params = recursion(EkfParams(), 'ekf_params')
@@ -132,20 +139,27 @@ class EkfNode(Node):
         timeout = Duration(seconds=2.0)
         try:
             self.camera_frame_to_base_link_transform = (
-                self.tf_buffer.lookup_transform(target_frame=base_link_name,
-                                                source_frame=camera_frame_name,
-                                                time=rclpy.time.Time(),
-                                                timeout=timeout))
+                self.tf_buffer.lookup_transform(
+                    target_frame=base_link_name,
+                    source_frame=camera_frame_name,
+                    time=rclpy.time.Time(),
+                    timeout=timeout,
+                )
+            )
             self.camera_frame_to_camera_link_transform = (
-                self.tf_buffer.lookup_transform(target_frame=camera_link_name,
-                                                source_frame=camera_frame_name,
-                                                time=rclpy.time.Time(),
-                                                timeout=timeout))
+                self.tf_buffer.lookup_transform(
+                    target_frame=camera_link_name,
+                    source_frame=camera_frame_name,
+                    time=rclpy.time.Time(),
+                    timeout=timeout,
+                )
+            )
             return True
         except TransformException as e:
             self.get_logger().warning(
                 f'After waiting {timeout}, could not look up transform from'
-                ' camera frame to base link for vehicle')
+                ' camera frame to base link for vehicle'
+            )
             self.get_logger().warn(f'{e}')
             return False
 
@@ -173,7 +187,8 @@ class EkfNode(Node):
             if len(index[0]) != 1:
                 self.get_logger().error(
                     'Expected to find exactly one occurance of '
-                    f'tag with id={tag_id}. But found occurances at {index}')
+                    f'tag with id={tag_id}. But found occurances at {index}'
+                )
                 continue
             detected_tags[i, :] = self.tags[index, 0:4]
 
@@ -185,45 +200,49 @@ class EkfNode(Node):
             tag_pose_in_camera_frame = transform_to_pose(tf_stamped.transform)
             tf2_geometry_msgs.do_transform_pose(
                 tag_pose_in_camera_frame,
-                self.camera_frame_to_camera_link_transform)
+                self.camera_frame_to_camera_link_transform,
+            )
 
             tag_pose_in_base_link = tf2_geometry_msgs.do_transform_pose(
                 tag_pose_in_camera_frame,
-                self.camera_frame_to_base_link_transform)
+                self.camera_frame_to_base_link_transform,
+            )
 
-            position_tag_in_base_link = np.array([
-                tag_pose_in_base_link.position.x,
-                tag_pose_in_base_link.position.y,
-                tag_pose_in_base_link.position.z
-            ]).reshape(-1, 1)
+            position_tag_in_base_link = np.array(
+                [
+                    tag_pose_in_base_link.position.x,
+                    tag_pose_in_base_link.position.y,
+                    tag_pose_in_base_link.position.z,
+                ]
+            ).reshape(-1, 1)
             q_meas = [
                 tag_pose_in_base_link.orientation.x,
                 tag_pose_in_base_link.orientation.y,
                 tag_pose_in_base_link.orientation.z,
-                tag_pose_in_base_link.orientation.w
+                tag_pose_in_base_link.orientation.w,
             ]
 
             # inverse quaternion to get base_link orientation
             # in tag frame, which has same orientation as map frame
             q_meas = tf_transformations.quaternion_inverse(q_meas)
-            q_meas = Quaternion(x=q_meas[0],
-                                y=q_meas[1],
-                                z=q_meas[2],
-                                w=q_meas[3])
+            q_meas = Quaternion(
+                x=q_meas[0], y=q_meas[1], z=q_meas[2], w=q_meas[3]
+            )
             q_truth = self.tags[index, 4:].flatten().tolist()
-            q_truth = Quaternion(x=q_truth[0],
-                                 y=q_truth[1],
-                                 z=q_truth[2],
-                                 w=q_truth[3])
+            q_truth = Quaternion(
+                x=q_truth[0], y=q_truth[1], z=q_truth[2], w=q_truth[3]
+            )
             q = q_truth * q_meas
             # TODO(lennartalff): THIS IS WRONG! We want the yaw angle relative
             # to the world frame and not relative to the tag!
             _, _, yaw = tf_transformations.euler_from_quaternion(
-                [q[1], q[2], q[3], q[0]])
+                [q[1], q[2], q[3], q[0]]
+            )
 
             # measurement 1: distance tag - base_link
-            measurements[self.dim_meas * i,
-                         0] = np.linalg.norm(position_tag_in_base_link)
+            measurements[self.dim_meas * i, 0] = np.linalg.norm(
+                position_tag_in_base_link
+            )
             # measurement 2: yaw angle in map frame
             measurements[self.dim_meas * i + 1, 0] = yaw
 
@@ -231,8 +250,10 @@ class EkfNode(Node):
 
     def on_orientation(self, msg: PoseStamped):
         orientation = [
-            msg.pose.orientation.x, msg.pose.orientation.y,
-            msg.pose.orientation.z, msg.pose.orientation.w
+            msg.pose.orientation.x,
+            msg.pose.orientation.y,
+            msg.pose.orientation.z,
+            msg.pose.orientation.w,
         ]
         roll, pitch, _ = tf_transformations.euler_from_quaternion(orientation)
         measurements = np.array([roll, pitch]).reshape((-1, 1))
@@ -271,8 +292,7 @@ class EkfNode(Node):
         self.vision_pose_pub.publish(msg)
 
     def load_tag_poses(self):
-        descriptor = ParameterDescriptor(type=ParameterType.PARAMETER_STRING)
-        self.declare_parameter('tag_poses_file', descriptor=descriptor)
+        self.declare_parameter('tag_poses_file', value=Parameter.Type.STRING)
         filepath = self.get_parameter('tag_poses_file').value
         if not isinstance(filepath, str):
             print('no value for tag_poses_file param')
@@ -284,10 +304,18 @@ class EkfNode(Node):
             tags = np.zeros((num_tags, 8))
             for tag in data['tag_poses']:
                 if tag['frame_id'] == 'map':
-                    tags[tag['id'], :] = np.array([
-                        tag['id'], tag['x'], tag['y'], tag['z'], tag['qx'],
-                        tag['qy'], tag['qz'], tag['qw']
-                    ])
+                    tags[tag['id'], :] = np.array(
+                        [
+                            tag['id'],
+                            tag['x'],
+                            tag['y'],
+                            tag['z'],
+                            tag['qx'],
+                            tag['qy'],
+                            tag['qz'],
+                            tag['qw'],
+                        ]
+                    )
                 else:
                     print('Tag not in map frame! - not implemented yet')
         return tags
@@ -295,9 +323,9 @@ class EkfNode(Node):
 
 def main():
     rclpy.init()
-    node = EkfNode("ekf_node")
+    node = EkfNode('ekf_node')
     rclpy.spin(node)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

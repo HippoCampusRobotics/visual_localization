@@ -129,9 +129,7 @@ def create_apriltag_node():
         parameters=[
             args,
             LaunchConfiguration('apriltag_config_file'),
-            {
-                'pose_method': 'solve_pnp'
-            },
+            {'pose_method': 'solve_pnp'},
         ],
         output='screen',
         emulate_tty=True,
@@ -159,8 +157,9 @@ def include_image_decoder_node():
     source = PythonLaunchDescriptionSource(path)
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
-    image_decoder = IncludeLaunchDescription(source,
-                                             launch_arguments=args.items())
+    image_decoder = IncludeLaunchDescription(
+        source, launch_arguments=args.items()
+    )
     return image_decoder
 
 
@@ -177,17 +176,19 @@ def generate_launch_description():
     launch_description = LaunchDescription()
     declare_launch_args(launch_description=launch_description)
 
-    action = GroupAction([
-        PushROSNamespace(LaunchConfiguration('vehicle_name')),
-        create_ekf_node(),
-        create_apriltag_node(),
-        create_tag_markers_node(),
-        create_relay_node(),
-        create_apriltag_viz_node(),
-        create_px4_bridge_node(),
-        include_image_decoder_node(),
-        include_image_rectification_node(),
-    ])
+    action = GroupAction(
+        [
+            PushROSNamespace(LaunchConfiguration('vehicle_name')),
+            create_ekf_node(),
+            create_apriltag_node(),
+            create_tag_markers_node(),
+            create_relay_node(),
+            create_apriltag_viz_node(),
+            create_px4_bridge_node(),
+            include_image_decoder_node(),
+            include_image_rectification_node(),
+        ]
+    )
     launch_description.add_action(action)
 
     return launch_description
