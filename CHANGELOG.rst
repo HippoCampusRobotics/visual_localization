@@ -2,8 +2,8 @@
 Changelog for package visual_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2024-09-11)
+------------------
 * updated changelog
 * fixed declare params
 * Contributors: Thies Lennart Alff
