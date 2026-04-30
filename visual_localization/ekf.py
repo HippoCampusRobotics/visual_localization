@@ -587,11 +587,16 @@ class MeasurementModelDistances(object):
             # dh /dyaw
             h_jac_yaw = 1.0
 
-            h_mat[self.ekf_params.dim_meas * i, 0:3] = [
-                h_jac_x,
-                h_jac_y,
-                h_jac_z,
-            ]
+            try:
+                h_mat[self.ekf_params.dim_meas * i, 0:3] = np.array([
+                    h_jac_x,
+                    h_jac_y,
+                    h_jac_z,
+                ]).reshape([3,])
+            except Exception as e:
+                print(f'{str(e)}')
+                print(f'shape: {h_mat[self.ekf_params.dim_meas * i, 0:3].shape}')
+                exit(1)
             h_mat[self.ekf_params.dim_meas * i + 1, 5] = h_jac_yaw
             # all other derivatives are zero
 

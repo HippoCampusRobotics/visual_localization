@@ -1,8 +1,8 @@
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():

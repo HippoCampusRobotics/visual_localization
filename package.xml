@@ -6,12 +6,9 @@
   <description>The visual localization package</description>
 
   <maintainer email="nathalie.bauschmann@tuhh.de">Nathalie Bauschmann</maintainer>
-
-  <license>TODO</license>
-
-  <url type="website">hippocampusrobotics.github.io/docs</url>
-
   <author email="nathalie.bauschmann@tuhh.de">Nathalie Bauschmann</author>
+  <license>GPLv2</license>
+  <url type="website">hippocampusrobotics.github.io/docs</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>

@@ -20,7 +20,7 @@ class Ranges : public rclcpp::Node {
     rclcpp::QoS qos = rclcpp::SensorDataQoS();
     qos.keep_last(1);
 
-    tag_ids_ = {{0, 0}, {1, 1}, {2, 2}, {3, 3}};
+    tag_ids_ = {{6, 0}, {4, 1}, {2, 2}, {5, 3}};
     ranges_pub_ =
         create_publisher<hippo_msgs::msg::RangeMeasurementArray>("ranges", qos);
     tag_transform_sub_ = create_subscription<tf2_msgs::msg::TFMessage>(

@@ -2,14 +2,29 @@
     ros__parameters:
         image_transport: raw    # image format
         family: 36h11           # tag family name
-        size: 0.070             # tag edge size in meter
-        max_hamming: 2          # maximum allowed hamming distance (corrected bits)
+        size: 0.075             # tag edge size in meter
+        max_hamming: 0          # maximum allowed hamming distance (corrected bits)
+        profile: false          # print profiling information to stdout
+        qos_profile: default    # optional qos_profile, "sensor_data", "default", or "system_default"
+
+        
 
         # see "apriltag.h" 'struct apriltag_detector' for more documentation on these optional parameters
         detector:
             threads: 4          # number of threads
-            decimate: 2.0       # decimate resolution for quad detection
+            decimate: 1.0       # decimate resolution for quad detection
             blur: 0.0           # sigma of Gaussian blur for quad detection
-            refine: 1           # snap to strong gradients
+            refine: True        # snap to strong gradients
             sharpening: 0.25    # sharpening of decoded images
-            debug: 0            # write additional debugging images to current working directory
+            debug: false        # write additional debugging images to current working directory
+        
+        pose_estimation_method: pnp     # method for estimating the tag pose
+                                        # pnp is more accurate than using homography
+                                        # homography: compute transformation between 2D image plane
+                                        #   and 2D plane of the tag, then extract 3D pose of tag
+                                        # PnP: solve directly for 3D pose by minimizing the reprojection
+                                        #   error between observed 2D corners and known 3D corner positions
+                                        # CAREFUL: THERE SEEM TO BE DIFFERENT FRAME CONVENTIONS FOR EACH METHOD!!!
+        
+        tag:
+            ids: [25]

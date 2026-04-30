@@ -3,9 +3,6 @@ from hippo_common.launch_helper import (
     LaunchArgsDict,
     declare_vehicle_name_and_sim_time,
 )
-from launch_ros.actions import Node, PushROSNamespace
-
-from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     GroupAction,
@@ -13,6 +10,9 @@ from launch.actions import (
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node, PushROSNamespace
+
+from launch import LaunchDescription
 
 
 def declare_launch_args(launch_description: LaunchDescription):
@@ -55,6 +55,15 @@ def create_ranges_node():
         name='range_sensor',
         executable='ranges',
         package='visual_localization',
+        emulate_tty=True,
+        output='screen',
+    )
+
+
+def create_ranges_debugger_node():
+    return Node(
+        executable='ranges_debugger.py',
+        package='position_control',
         emulate_tty=True,
         output='screen',
     )
@@ -131,6 +140,7 @@ def generate_launch_description():
             include_image_decoder_node(),
             include_image_rectification_node(),
             create_ranges_node(),
+            # create_ranges_debugger_node(),
         ]
     )
     launch_description.add_action(action)
