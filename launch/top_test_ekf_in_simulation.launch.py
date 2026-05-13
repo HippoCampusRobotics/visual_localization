@@ -31,7 +31,7 @@ from launch.actions import (
     GroupAction,
     IncludeLaunchDescription,
 )
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, LaunchConfigurationEquals
 from launch.substitutions import (
     Command,
     EqualsSubstitution,
@@ -49,7 +49,6 @@ def declare_launch_args(launch_description: LaunchDescription) -> None:
 
     action = DeclareLaunchArgument(
         name='vehicle_name',
-        default_value='uuv00',
         description='Vehicle name used as top-level namespace.',
     )
     launch_description.add_action(action)
@@ -89,6 +88,18 @@ def declare_launch_args(launch_description: LaunchDescription) -> None:
         name='camera_name',
         default_value='vertical_camera',
         description='Camera used for detecting the tank-floor AprilTags.',
+    )
+    launch_description.add_action(action)
+
+    action = DeclareLaunchArgument(
+        name='apriltag_ros_version',
+        default_value='hippo_fork',
+        choices=['hippo_fork', 'released'],
+        description=(
+            'Select parameter compatibility for apriltag_ros. '
+            'This does not select the installed executable; that is determined '
+            'by the sourced workspace.'
+        ),
     )
     launch_description.add_action(action)
 
@@ -406,7 +417,37 @@ def include_path_follower() -> IncludeLaunchDescription:
 ###############################################################################
 
 
-def create_apriltag_node() -> Node:
+# def create_apriltag_node() -> Node:
+#     args = LaunchArgsDict()
+#     args.add_vehicle_name_and_sim_time()
+#     return Node(
+#         package='apriltag_ros',
+#         executable='apriltag_node',
+#         namespace=LaunchConfiguration('camera_name'),
+#         name='apriltag_node',
+#         remappings=[
+#             ('/tf', 'tag_transforms'),
+#         ],
+#         parameters=[
+#             args,
+#             LaunchConfiguration('apriltag_config_file'),
+#             {
+#                 # Old HippoCampus apriltag_ros fork.
+#                 # For upstream apriltag_ros, remove this parameter and use
+#                 # pose_estimation_method: pnp in apriltag_config.yaml.
+#                 'pose_method': 'solve_pnp',
+#                 'size': ParameterValue(
+#                     LaunchConfiguration('tag_size'),
+#                     value_type=float,
+#                 ),
+#             },
+#         ],
+#         output='screen',
+#         emulate_tty=True,
+#     )
+
+
+def create_apriltag_node_hippo_fork():
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
     return Node(
@@ -420,19 +461,42 @@ def create_apriltag_node() -> Node:
         parameters=[
             args,
             LaunchConfiguration('apriltag_config_file'),
-            {
-                # Old HippoCampus apriltag_ros fork.
-                # For upstream apriltag_ros, remove this parameter and use
-                # pose_estimation_method: pnp in apriltag_config.yaml.
-                'pose_method': 'solve_pnp',
-                'size': ParameterValue(
-                    LaunchConfiguration('tag_size'),
-                    value_type=float,
-                ),
-            },
+            {'pose_method': 'solve_pnp'},
         ],
         output='screen',
         emulate_tty=True,
+        condition=IfCondition(
+            EqualsSubstitution(
+                'apriltag_ros_version',
+                'hippo_fork',
+            )
+        ),
+    )
+
+
+def create_apriltag_node_released():
+    args = LaunchArgsDict()
+    args.add_vehicle_name_and_sim_time()
+    return Node(
+        package='apriltag_ros',
+        executable='apriltag_node',
+        namespace=LaunchConfiguration('camera_name'),
+        name='apriltag_node',
+        remappings=[
+            ('/tf', 'tag_transforms'),
+        ],
+        parameters=[
+            args,
+            LaunchConfiguration('apriltag_config_file'),
+        ],
+        output='screen',
+        emulate_tty=True,
+        condition=IfCondition(
+            EqualsSubstitution(
+                'apriltag_ros_version',
+                'released',
+            )
+        ),
     )
 
 
@@ -440,6 +504,7 @@ def create_ekf_node() -> Node:
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
     args.add(['camera_name', 'tag_poses_file'])
+    args.add('apriltag_ros_version')
     return Node(
         package='visual_localization',
         executable='vision_ekf_node',
@@ -505,7 +570,9 @@ def create_visual_localization_group() -> GroupAction:
     return GroupAction(
         [
             PushROSNamespace(LaunchConfiguration('vehicle_name')),
-            create_apriltag_node(),
+            # create_apriltag_node(),
+            create_apriltag_node_hippo_fork(),
+            create_apriltag_node_released(),
             create_ekf_node(),
             create_tag_markers_node(),
             create_relay_node(),

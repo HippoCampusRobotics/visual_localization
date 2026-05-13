@@ -65,6 +65,18 @@ def declare_launch_args(launch_description: LaunchDescription):
     )
     launch_description.add_action(action)
 
+    action = DeclareLaunchArgument(
+        name='apriltag_ros_version',
+        default_value='hippo_fork',
+        choices=['hippo_fork', 'released'],
+        description=(
+            'Select parameter compatibility for apriltag_ros. '
+            'This does not select the installed executable; that is determined '
+            'by the sourced workspace.'
+        ),
+    )
+    launch_description.add_action(action)
+
 
 def include_visual_localization():
     args = LaunchArgsDict()
@@ -75,6 +87,7 @@ def include_visual_localization():
     args.add('apriltag_config_file')
     args.add('use_apriltag_viz')
     args.add('use_tag_markers')
+    args.add('apriltag_ros_version')
 
     pkg = 'visual_localization'
     source = launch_file_source(pkg, 'top_localization.launch.py')

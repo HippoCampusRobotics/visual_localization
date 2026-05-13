@@ -8,6 +8,7 @@ from launch.actions import (
     GroupAction,
     IncludeLaunchDescription,
 )
+from launch.conditions import LaunchConfigurationEquals
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node, PushROSNamespace
@@ -24,6 +25,18 @@ def declare_launch_args(launch_description: LaunchDescription):
         default_value='front_camera',
         description='The name of the camera. '
         + 'This launch file is intended for the BlueROV front_camera.',
+    )
+    launch_description.add_action(action)
+
+    action = DeclareLaunchArgument(
+        name='apriltag_ros_version',
+        default_value='hippo_fork',
+        choices=['hippo_fork', 'released'],
+        description=(
+            'Select parameter compatibility for apriltag_ros. '
+            'This does not select the installed executable; that is determined '
+            'by the sourced workspace.'
+        ),
     )
     launch_description.add_action(action)
 
@@ -93,7 +106,27 @@ def create_relay_node():
     )
 
 
-def create_apriltag_node():
+# def create_apriltag_node():
+#     args = LaunchArgsDict()
+#     args.add_vehicle_name_and_sim_time()
+#     return Node(
+#         package='apriltag_ros',
+#         executable='apriltag_node',
+#         namespace=LaunchConfiguration('camera_name'),
+#         name='apriltag_node',
+#         remappings=[
+#             ('/tf', 'tag_transforms'),
+#         ],
+#         parameters=[
+#             args,
+#             LaunchConfiguration('apriltag_config_file'),
+#             {'pose_method': 'solve_pnp'},
+#         ],
+#         output='screen',
+#         emulate_tty=True,
+#     )
+
+def create_apriltag_node_hippo_fork():
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
     return Node(
@@ -111,6 +144,34 @@ def create_apriltag_node():
         ],
         output='screen',
         emulate_tty=True,
+        condition=LaunchConfigurationEquals(
+            'apriltag_ros_version',
+            'hippo_fork',
+        ),
+    )
+
+
+def create_apriltag_node_released():
+    args = LaunchArgsDict()
+    args.add_vehicle_name_and_sim_time()
+    return Node(
+        package='apriltag_ros',
+        executable='apriltag_node',
+        namespace=LaunchConfiguration('camera_name'),
+        name='apriltag_node',
+        remappings=[
+            ('/tf', 'tag_transforms'),
+        ],
+        parameters=[
+            args,
+            LaunchConfiguration('apriltag_config_file'),
+        ],
+        output='screen',
+        emulate_tty=True,
+        condition=LaunchConfigurationEquals(
+            'apriltag_ros_version',
+            'released',
+        ),
     )
 
 
@@ -144,13 +205,15 @@ def generate_launch_description():
     action = GroupAction(
         [
             PushROSNamespace(LaunchConfiguration('vehicle_name')),
-            create_apriltag_node(),
+            # create_apriltag_node(),
             create_relay_node(),
             create_apriltag_viz_node(),
             include_image_decoder_node(),
             include_image_rectification_node(),
             create_ranges_node(),
             # create_ranges_debugger_node(),
+            create_apriltag_node_hippo_fork(),
+            create_apriltag_node_released(),
         ]
     )
     launch_description.add_action(action)

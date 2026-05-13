@@ -104,8 +104,24 @@ class EkfNode(Node):
 
         self.declare_parameter('camera_name', rclpy.Parameter.Type.STRING)
         self.declare_parameter('vehicle_name', rclpy.Parameter.Type.STRING)
+        self.declare_parameter('apriltag_ros_version', 'hippo_fork')
+
         self.camera_name = str(self.get_parameter('camera_name').value)
         self.vehicle_name = self.get_parameter('vehicle_name').value
+        apriltag_ros_version = (
+            self.get_parameter('apriltag_ros_version')
+            .get_parameter_value()
+            .string_value
+        )
+        # Correction tranform to deal with frame convention change in
+        # Christian Rauch's new Apriltag_ros wrapper
+        # This should be identity for our old fork of apriltag_ros!
+        self.tag_detected_to_tag_map_transform = self.get_corrected_transform(
+            apriltag_ros_version
+        )
+        self.get_logger().info(
+            f'Using AprilTag ROS convention for "{apriltag_ros_version}".'
+        )
 
         self.ekf_params = self.init_ekf_params()
         self.ekf = ExtendedKalmanFilter(self.ekf_params)
@@ -251,9 +267,13 @@ class EkfNode(Node):
                 self.camera_frame_to_base_link_transform,
             )
 
-            T_base_tag = pose_to_matrix(tag_pose_in_base_link)
+            T_base_tag_detected = pose_to_matrix(tag_pose_in_base_link)
+            # work around since apriltag_ros changed frame conventions:
+            T_base_tag_map = (
+                T_base_tag_detected @ self.tag_detected_to_tag_map_transform
+            )
             T_map_tag = tag_pose_data_to_matrix(self.tags[index, :].reshape(-1))
-            T_map_base = T_map_tag @ np.linalg.inv(T_base_tag)
+            T_map_base = T_map_tag @ np.linalg.inv(T_base_tag_map)
 
             position_tag_in_base_link = np.array(
                 [
@@ -335,6 +355,37 @@ class EkfNode(Node):
                 else:
                     print('Tag not in map frame! - not implemented yet')
         return tags
+
+    def get_corrected_transform(self, apriltag_ros_version: str) -> np.ndarray:
+        """Return transform from detected tag frame to map tag frame.
+
+        The tag poses in tag_poses.yaml are treated as the map/reference
+        convention. The old HippoCampus apriltag_ros fork is the reference.
+
+        hippo_fork:
+            old solve_pnp convention, no correction.
+
+        released:
+            Christian Rauch / released apriltag_ros, pose_estimation_method=pnp
+            Its PnP tag frame has x right, y up, z out of the tag.
+            The old/map convention is x right, y down, z into the tag.
+            This differs by RotX(180 deg).
+        """
+        if apriltag_ros_version == 'hippo_fork':
+            roll = 0.0
+            pitch = 0.0
+            yaw = 0.0
+        elif apriltag_ros_version == 'released':
+            roll = np.pi
+            pitch = 0.0
+            yaw = 0.0
+        else:
+            raise ValueError(
+                f'Unsupported apriltag_ros_version "{apriltag_ros_version}". '
+                'Expected "hippo_fork" or "released".'
+            )
+
+        return tf_transformations.euler_matrix(roll, pitch, yaw)
 
 
 def main():
