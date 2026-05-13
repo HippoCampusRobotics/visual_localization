@@ -11,6 +11,7 @@ from launch.actions import (
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node, PushROSNamespace
+from launch_ros.parameter_descriptions import ParameterValue
 
 from launch import LaunchDescription
 
@@ -21,7 +22,8 @@ def declare_launch_args(launch_description: LaunchDescription):
     action = DeclareLaunchArgument(
         name='camera_name',
         default_value='front_camera',
-        description='The name of the camera.',
+        description='The name of the camera. '
+        + 'This launch file is intended for the BlueROV front_camera.',
     )
     launch_description.add_action(action)
 
@@ -51,10 +53,16 @@ def create_apriltag_viz_node():
 
 
 def create_ranges_node():
+    args = LaunchArgsDict()
+    args['tag_transforms_topic'] = ParameterValue(
+        [LaunchConfiguration('camera_name'), '/tag_transforms'],
+        value_type=str,
+    )
     return Node(
         name='range_sensor',
         executable='ranges',
         package='visual_localization',
+        parameters=[args],
         emulate_tty=True,
         output='screen',
     )
@@ -112,6 +120,7 @@ def include_image_decoder_node():
     source = PythonLaunchDescriptionSource(path)
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
+    args.add('camera_name')
     image_decoder = IncludeLaunchDescription(
         source, launch_arguments=args.items()
     )
@@ -124,6 +133,7 @@ def include_image_rectification_node():
     source = PythonLaunchDescriptionSource(path)
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
+    args.add('camera_name')
     return IncludeLaunchDescription(source, launch_arguments=args.items())
 
 

@@ -14,6 +14,7 @@ from geometry_msgs.msg import (
     TransformStamped,
 )
 from rclpy.duration import Duration
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
@@ -29,7 +30,16 @@ from visual_localization.ekf import (
 
 
 def get_tag_id(frame_id: str) -> int:
-    return int(frame_id.removeprefix('tag36h11:'))
+    if frame_id.startswith('tag36h11:'):
+        return int(frame_id.removeprefix('tag36h11:'))
+
+    # accept names like front_tag_#, tag_#, vertical_tag_# etc.
+    try:
+        return int(frame_id.rsplit('_', 1)[-1])
+    except ValueError as exc:
+        raise ValueError(
+            f'Could not parse tag id from frame "{frame_id}".'
+        ) from exc
 
 
 def transform_to_pose(tf: Transform):
@@ -214,14 +224,20 @@ class EkfNode(Node):
                 )
                 continue
 
-            tag_id = get_tag_id(tf_stamped.child_frame_id)
+            try:
+                tag_id = get_tag_id(tf_stamped.child_frame_id)
+            except ValueError as exc:
+                self.get_logger().warn(str(exc), throttle_duration_sec=5.0)
+                continue
 
             # add this tag's information to list of detected tags
             index = np.where(self.tags[:, 0] == tag_id)
             if len(index[0]) != 1:
-                self.get_logger().error(
-                    'Expected to find exactly one occurance of '
-                    f'tag with id={tag_id}. But found occurances at {index}'
+                self.get_logger().warn(
+                    f'Tag id {tag_id} was detected but is not present in the '
+                    + 'configured tag pose map for the EKF. '
+                    + 'Skipping transform.',
+                    throttle_duration_sec=1.0,
                 )
                 continue
 
@@ -324,7 +340,16 @@ class EkfNode(Node):
 def main():
     rclpy.init()
     node = EkfNode('ekf_node')
-    rclpy.spin(node)
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    except rclpy.executors.ExternalShutdownException:
+        pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':

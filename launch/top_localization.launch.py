@@ -8,9 +8,11 @@ from launch.actions import (
     GroupAction,
     IncludeLaunchDescription,
 )
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node, PushROSNamespace
+from launch.actions import Shutdown
 
 from launch import LaunchDescription
 
@@ -30,7 +32,7 @@ def declare_launch_args(launch_description: LaunchDescription):
     action = DeclareLaunchArgument(
         name='ekf_config_file',
         default_value=default_path,
-        description='Path to the ekf configuration .yaml file.',
+        description='Path to the EKF configuration .yaml file.',
     )
     launch_description.add_action(action)
 
@@ -52,6 +54,29 @@ def declare_launch_args(launch_description: LaunchDescription):
     )
     launch_description.add_action(action)
 
+    action = DeclareLaunchArgument(
+        name='use_apriltag_viz',
+        default_value='false',
+        description='Publish AprilTag detection overlay image.',
+    )
+    launch_description.add_action(action)
+
+    action = DeclareLaunchArgument(
+        name='use_px4_bridge',
+        default_value='false',
+        description='Publish visual localization '
+        + 'to PX4s /fmu/in/vehicle_visual_odometry.',
+    )
+    launch_description.add_action(action)
+
+    action = DeclareLaunchArgument(
+        name='use_tag_markers',
+        default_value='false',
+        description='Publish visualization markers'
+        + ' for the configured AprilTag map.',
+    )
+    launch_description.add_action(action)
+
 
 def create_apriltag_viz_node():
     args = LaunchArgsDict()
@@ -65,6 +90,7 @@ def create_apriltag_viz_node():
         parameters=[args],
         emulate_tty=True,
         output='screen',
+        condition=IfCondition(LaunchConfiguration('use_apriltag_viz')),
     )
 
 
@@ -99,6 +125,7 @@ def create_ekf_node():
         ],
         emulate_tty=True,
         output='screen',
+        on_exit=[Shutdown(reason='vision_ekf_node exited')],
     )
 
 
@@ -112,6 +139,7 @@ def create_tag_markers_node():
         parameters=[args],
         emulate_tty=True,
         output='screen',
+        condition=IfCondition(LaunchConfiguration('use_tag_markers')),
     )
 
 
@@ -148,6 +176,7 @@ def create_px4_bridge_node():
         ],
         output='screen',
         emulate_tty=True,
+        condition=IfCondition(LaunchConfiguration('use_px4_bridge')),
     )
 
 
@@ -157,6 +186,7 @@ def include_image_decoder_node():
     source = PythonLaunchDescriptionSource(path)
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
+    args.add('camera_name')
     image_decoder = IncludeLaunchDescription(
         source, launch_arguments=args.items()
     )
@@ -169,6 +199,7 @@ def include_image_rectification_node():
     source = PythonLaunchDescriptionSource(path)
     args = LaunchArgsDict()
     args.add_vehicle_name_and_sim_time()
+    args.add('camera_name')
     return IncludeLaunchDescription(source, launch_arguments=args.items())
 
 
@@ -183,8 +214,8 @@ def generate_launch_description():
             create_apriltag_node(),
             create_tag_markers_node(),
             create_relay_node(),
-            # create_apriltag_viz_node(),
-            # create_px4_bridge_node(),
+            create_apriltag_viz_node(),
+            create_px4_bridge_node(),
             include_image_decoder_node(),
             include_image_rectification_node(),
         ]

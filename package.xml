@@ -26,10 +26,17 @@
   <depend>tf2_ros</depend>
   <depend>tf2</depend>
   <depend>geometry_msgs</depend>
+  <depend>tf2_geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>px4_msgs</depend>
   <depend>std_srvs</depend>
+
+  <exec_depend>apriltag_ros</exec_depend>
+  <exec_depend>apriltag_viz</exec_depend>
+  <exec_depend>image_proc</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
+  <exec_depend>camera_calibration</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

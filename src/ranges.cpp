@@ -21,10 +21,12 @@ class Ranges : public rclcpp::Node {
     qos.keep_last(1);
 
     tag_ids_ = {{6, 0}, {4, 1}, {2, 2}, {5, 3}};
+    std::string tag_transforms_topic = declare_parameter<std::string>(
+        "tag_transforms_topic", "front_camera/tag_transforms");
     ranges_pub_ =
         create_publisher<hippo_msgs::msg::RangeMeasurementArray>("ranges", qos);
     tag_transform_sub_ = create_subscription<tf2_msgs::msg::TFMessage>(
-        "front_camera/tag_transforms", qos,
+        tag_transforms_topic, qos,
         [this](const tf2_msgs::msg::TFMessage::SharedPtr msg) {
           OnTagTransforms(msg);
         });
@@ -33,7 +35,7 @@ class Ranges : public rclcpp::Node {
  private:
   void OnTagTransforms(const tf2_msgs::msg::TFMessage::SharedPtr _msg) {
     hippo_msgs::msg::RangeMeasurementArray range_array_msg;
-    for (const auto &tf_stamped : _msg->transforms) {
+    for (const auto& tf_stamped : _msg->transforms) {
       auto source = tf_stamped.child_frame_id;
       source.erase(std::remove_if(source.begin(), source.end(),
                                   [](char c) { return !std::isdigit(c); }),
@@ -44,8 +46,9 @@ class Ranges : public rclcpp::Node {
         range_id = tag_ids_.at(tag_id);
 
       } catch (const std::out_of_range &e) {
-        RCLCPP_WARN(get_logger(),
-                    "Tag with id %d not in tag_ids dict. Ignoring it.", tag_id);
+        RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
+                             "Tag with id %d not in tag_ids dict. Ignoring it.",
+                             tag_id);
         continue;
       }
       auto p = tf_stamped.transform.translation;
